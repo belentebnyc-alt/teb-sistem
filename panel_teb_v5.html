@@ -328,7 +328,7 @@ function renderAlumnos(lista){
     h+='<td>'+bar(a.total_abonado,a.total_a_pagar)+'</td>';
     h+='<td style="color:'+(pend>0?'#791F1F':'#27500A')+';font-weight:500">'+usd(pend)+'</td>';
     h+='<td>'+(a.celular?'<a class="wa-link" href="https://'+a.celular+'" target="_blank">↗</a>':'—')+'</td>';
-    h+='<td><button class="btn btn-sm" style="font-size:11px;padding:3px 8px" onclick="copiarLink(\"'+a.id+'\")">🔗 Link</button></td>';
+    h+='<td><button class="btn btn-sm" style="font-size:11px;padding:3px 8px;background:#E6F1FB;border-color:#B5D4F4;color:#0C447C" onclick="mostrarDialog(window.location.href.split(\'panel_teb_v5.html\')[0]+\'portal_alumno.html?id='+a.id+'\')" >🔗 Link</button></td>';
     h+='</tr>';
   });
   h+='</tbody></table></div><div style="padding:8px 14px;font-size:12px;color:#888;border-top:0.5px solid #f0f0e8">'+lista.length+' alumnos</div>';
