@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel TEB — v5</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#f5f5f0;color:#1a1a1a}
+.topbar{background:#004225;color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.topbar h1{font-size:16px;font-weight:500}
+.topbar-links{display:flex;gap:10px}
+.topbar-links a{color:white;font-size:12px;opacity:.8;text-decoration:none;padding:5px 10px;border:0.5px solid rgba(255,255,255,.3);border-radius:6px}
+.topbar-links a:hover{opacity:1;background:rgba(255,255,255,.1)}
+.container{max-width:1300px;margin:0 auto;padding:24px}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+.metric{background:white;border-radius:10px;padding:14px 16px;border:0.5px solid #e0e0d8}
+.metric-label{font-size:11px;color:#888;margin-bottom:5px}
+.metric-value{font-size:22px;font-weight:500}
+.green{color:#27500A}.red{color:#791F1F}.amber{color:#633806}.blue{color:#0C447C}
+.card{background:white;border-radius:10px;border:0.5px solid #e0e0d8;margin-bottom:20px}
+.card-header{padding:14px 20px;border-bottom:0.5px solid #e0e0d8;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-header h2{font-size:14px;font-weight:500}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+select,input[type=text],input[type=number],input[type=date],textarea{padding:7px 10px;border:0.5px solid #d0d0c8;border-radius:6px;font-size:13px;background:white;color:#1a1a1a;outline:none}
+select:focus,input:focus,textarea:focus{border-color:#004225}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#f8f8f5;padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#666;border-bottom:0.5px solid #e0e0d8;white-space:nowrap}
+td{padding:9px 12px;border-bottom:0.5px solid #f0f0e8;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafaf7}
+tr.row-warn td{background:#FAEEDA18}
+tr.row-danger td{background:#FCEBEB22}
+.pill{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-green{background:#EAF3DE;color:#27500A}
+.pill-red{background:#FCEBEB;color:#791F1F}
+.pill-amber{background:#FAEEDA;color:#633806}
+.pill-blue{background:#E6F1FB;color:#0C447C}
+.pill-gray{background:#F1EFE8;color:#444}
+.pill-purple{background:#EEEDFE;color:#3C3489}
+.progress{display:flex;align-items:center;gap:6px}
+.progress-bar{height:5px;background:#e0e0d8;border-radius:99px;width:70px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px}
+.btn{padding:7px 14px;border-radius:6px;font-size:13px;cursor:pointer;border:0.5px solid #d0d0c8;background:white;color:#1a1a1a}
+.btn:hover{background:#f5f5f0}
+.btn-primary{background:#004225;color:white;border-color:#004225}
+.btn-primary:hover{background:#003018}
+.btn-danger{background:#FCEBEB;color:#791F1F;border-color:#F7C1C1}
+.btn-danger:hover{background:#F7C1C1}
+.btn-sm{padding:4px 10px;font-size:12px}
+.tab-bar{display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer;border:0.5px solid #d0d0c8;background:white;color:#666}
+.tab.active{background:#004225;color:white;border-color:#004225}
+.nombre-link{color:#004225;cursor:pointer;font-weight:500}
+.nombre-link:hover{text-decoration:underline}
+.wa-link{color:#25D366;font-size:12px;text-decoration:none}
+.loading{text-align:center;padding:30px;color:#888;font-size:14px}
+.alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:12px}
+.alert-success{background:#EAF3DE;color:#27500A}
+.alert-error{background:#FCEBEB;color:#791F1F}
+.alert-info{background:#E6F1FB;color:#0C447C}
+.dias-ok{color:#27500A;font-size:12px}
+.dias-warn{color:#633806;font-weight:500;font-size:12px}
+.dias-danger{color:#791F1F;font-weight:600;font-size:12px}
+
+/* Modal principal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:100;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:14px;width:760px;max-width:100%;margin-bottom:40px}
+.modal-header{padding:18px 24px;border-bottom:0.5px solid #e0e0d8;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.modal-header h3{font-size:16px;font-weight:500}
+.modal-header .sub{font-size:12px;color:#888;margin-top:3px}
+.modal-tabs{display:flex;padding:0 24px;border-bottom:0.5px solid #e0e0d8;overflow-x:auto}
+.modal-tab{padding:10px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.modal-tab.active{color:#004225;font-weight:500;border-bottom:2px solid #004225}
+.modal-body{padding:20px 24px;max-height:60vh;overflow-y:auto;max-height:62vh;overflow-y:auto}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 24px;border-top:0.5px solid #e0e0d8}
+
+/* Perfil */
+.section-block{margin-bottom:18px}
+.section-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.form-group{margin-bottom:10px}
+.form-group label{display:block;font-size:11px;color:#666;margin-bottom:3px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:7px 10px;border:0.5px solid #d0d0c8;border-radius:6px;font-size:13px}
+.form-group textarea{resize:vertical}
+.fin-box{background:#f8f8f5;border-radius:10px;padding:14px;margin-bottom:14px}
+.fin-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fin-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.fin-item label{font-size:11px;color:#888;display:block;margin-bottom:2px}
+.fin-item span{font-size:16px;font-weight:500}
+.fin-divider{border:none;border-top:0.5px solid #e0e0d8;margin:10px 0}
+
+/* Pagos editable */
+.pago-card{border:0.5px solid #e0e0d8;border-radius:8px;margin-bottom:10px;overflow:hidden}
+.pago-card-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8f8f5;cursor:pointer;gap:8px}
+.pago-card-header:hover{background:#f0f0e8}
+.pago-card-body{display:none;padding:14px;border-top:0.5px solid #e0e0d8}
+.pago-card-body.open{display:block}
+.pago-badge{display:flex;align-items:center;gap:8px}
+.add-pago-form{background:#EAF3DE22;border:0.5px solid #C0DD97;border-radius:8px;padding:14px;margin-top:12px}
+.add-pago-title{font-size:12px;font-weight:600;color:#27500A;margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em}
+
+/* Comentarios */
+.comentario-item{border-left:3px solid #EF9F27;padding:10px 12px;margin-bottom:10px;background:#FAEEDA22;border-radius:0 6px 6px 0}
+.comentario-fecha{font-size:11px;color:#854F0B;margin-bottom:3px}
+.comentario-texto{font-size:13px;color:#1a1a1a;line-height:1.5}
+.comentario-autor{font-size:11px;color:#854F0B;margin-top:3px;text-align:right}
+.comentario-add{background:#f8f8f5;border-radius:8px;padding:14px;margin-top:12px}
+.comentario-add textarea{width:100%;padding:8px;border:0.5px solid #d0d0c8;border-radius:6px;font-size:13px;height:70px;resize:vertical;margin-bottom:8px}
+
+/* Estado cuenta */
+.cuenta-header{background:#004225;color:white;padding:20px 24px;border-radius:10px 10px 0 0}
+.cuenta-body{padding:20px 24px}
+.cuenta-section{margin-bottom:20px}
+.cuenta-section h4{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;border-bottom:0.5px solid #e0e0d8;padding-bottom:6px}
+.cuenta-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:0.5px solid #f5f5f0}
+.cuenta-row:last-child{border-bottom:none}
+.cuenta-row.total{font-weight:600;font-size:14px;padding-top:8px;border-top:1px solid #e0e0d8;margin-top:4px}
+.cuenta-pago{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;padding:7px 0;border-bottom:0.5px solid #f5f5f0;font-size:13px;align-items:center}
+.cuenta-pago:last-child{border-bottom:none}
+
+/* Dashboard */
+.ed-card{background:white;border-radius:10px;border:0.5px solid #e0e0d8;padding:16px;margin-bottom:12px}
+.ed-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.ed-stat{text-align:center;padding:10px;background:#f8f8f5;border-radius:8px}
+.ed-stat-val{font-size:18px;font-weight:500}
+.ed-stat-lbl{font-size:11px;color:#888;margin-top:2px}
+.prog-bar-big{height:8px;background:#e0e0d8;border-radius:99px;overflow:hidden;margin-bottom:4px}
+.prog-bar-big-fill{height:100%;border-radius:99px;background:#004225}
+.alerta-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:6px;margin-bottom:4px;font-size:12px}
+.alerta-danger{background:#FCEBEB;border-left:3px solid #E24B4A}
+.alerta-warn{background:#FAEEDA;border-left:3px solid #EF9F27}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>TEB — Panel de administración</h1>
+  <div class="topbar-links">
+    <a href="formulario_alumno.html">+ Nuevo alumno</a>
+    <a href="importar_pagos.html">↑ Importar pagos</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="tab-bar">
+    <button class="tab active" onclick="mostrarTab('alumnos')">Alumnos</button>
+    <button class="tab" onclick="mostrarTab('dashboard')">Dashboard</button>
+    <button class="tab" onclick="mostrarTab('alertas')">Alertas de pago</button>
+    <button class="tab" onclick="mostrarTab('alertas-visa')" id="tab-btn-visa">Alertas visa</button>
+    <button class="tab" onclick="mostrarTab('ex-teb')">Ex TEB</button>
+    <button class="tab" onclick="mostrarTab('cuenta')">Estado de cuenta</button>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total alumnos</div><div class="metric-value" id="m-total">—</div></div>
+    <div class="metric"><div class="metric-label">Total cobrado</div><div class="metric-value green" id="m-cobrado">—</div></div>
+    <div class="metric"><div class="metric-label">Pendiente total</div><div class="metric-value red" id="m-pendiente">—</div></div>
+    <div class="metric"><div class="metric-label">Alertas +30 días</div><div class="metric-value amber" id="m-warn">—</div></div>
+    <div class="metric"><div class="metric-label">Morosos +60 días</div><div class="metric-value red" id="m-danger">—</div></div>
+    <div class="metric" style="cursor:pointer" onclick="mostrarTab('alertas-visa')"><div class="metric-label">🛂 Citas visa próximas</div><div class="metric-value amber" id="m-visa-alert">—</div></div>
+  </div>
+
+  <div id="sec-alumnos">
+    <div class="card">
+      <div class="card-header">
+        <h2>Alumnos</h2>
+        <div class="filters">
+          <input type="text" id="buscar" placeholder="Buscar nombre..." oninput="filtrar()" style="width:190px">
+          <select id="filtro-edicion" onchange="filtrar()"><option value="">Todas las ediciones</option></select>
+          <select id="filtro-programa" onchange="filtrar()">
+            <option value="">Todos los programas</option>
+            <option>Teatro Musical</option><option>Bailarin</option><option>Cantante</option><option>Musico</option>
+          </select>
+          <select id="filtro-visa" onchange="filtrar()">
+            <option value="">Toda visa</option><option value="NO">Sin visa</option>
+            <option value="En tramite">En trámite</option><option value="Rechazada">Rechazada</option><option value="SI">Con visa</option>
+          </select>
+        </div>
+      </div>
+      <div id="tabla-alumnos"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <div id="sec-dashboard" style="display:none"><div id="dashboard-contenido"><div class="loading">Cargando...</div></div></div>
+
+  <div id="sec-alertas" style="display:none">
+    <div class="card">
+      <div class="card-header"><h2>Alertas de pago</h2>
+        <div style="display:flex;gap:6px;font-size:12px">
+          <span style="background:#FCEBEB;color:#791F1F;padding:3px 10px;border-radius:20px;font-weight:500">Rojo = +60 días</span>
+          <span style="background:#FAEEDA;color:#633806;padding:3px 10px;border-radius:20px;font-weight:500">Amarillo = 30–60 días</span>
+        </div>
+      </div>
+      <div id="tabla-alertas"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <div id="sec-alertas-visa" style="display:none">
+    <div class="card">
+      <div class="card-header">
+        <h2>🛂 Citas de visa en los próximos 20 días</h2>
+        <div style="font-size:12px;color:#888">El sistema muestra alumnos con cita agendada para que puedas asignar un director/asesor</div>
+      </div>
+      <div id="tabla-alertas-visa"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <div id="sec-ex-teb" style="display:none">
+    <div class="card">
+      <div class="card-header">
+        <h2>⭐ Ex TEB — Alumnos que ya viajaron</h2>
+        <div style="font-size:12px;color:#888">Alumnos movidos aquí siguen en Supabase pero no aparecen en la lista principal</div>
+      </div>
+      <div id="tabla-ex-teb"><div class="loading">Cargando...</div></div>
+    </div>
+  </div>
+
+  <div id="sec-cuenta" style="display:none">
+    <div class="card">
+      <div class="card-header">
+        <h2>Estado de cuenta por alumno</h2>
+        <div class="filters">
+          <input type="text" id="buscar-cuenta" placeholder="Escribí el nombre del alumno..." oninput="filtrarCuenta()" style="width:280px">
+          <button class="btn btn-primary btn-sm" onclick="window.print()">Imprimir / PDF</button>
+        </div>
+      </div>
+      <div id="lista-cuenta" style="padding:14px 20px"><div style="font-size:13px;color:#888">Escribí el nombre para buscar al alumno.</div></div>
+    </div>
+    <div id="estado-cuenta" style="display:none">
+      <div class="card" id="cuenta-printable">
+        <div class="cuenta-header">
+          <div style="font-size:11px;opacity:.7;margin-bottom:4px">TEB — Estado de cuenta</div>
+          <div style="font-size:18px;font-weight:500" id="c-nombre">—</div>
+          <div style="font-size:13px;opacity:.8;margin-top:2px" id="c-sub">—</div>
+        </div>
+        <div class="cuenta-body">
+          <div class="cuenta-section"><h4>Información del programa</h4><div id="c-info"></div></div>
+          <div class="cuenta-section"><h4>Detalle económico</h4><div id="c-economia"></div></div>
+          <div class="cuenta-section"><h4>Detalle de pagos realizados</h4><div id="c-pagos"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERFIL COMPLETO -->
+<div class="modal-overlay" id="modal-alumno">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3 id="modal-nombre">—</h3>
+        <div class="sub" id="modal-sub">—</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="modal-wa"></span>
+        <button class="btn btn-sm" onclick="cerrarModal()">Cerrar</button>
+      </div>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="mTab('perfil')">Perfil</button>
+      <button class="modal-tab" onclick="mTab('financiero')">Financiero</button>
+      <button class="modal-tab" onclick="mTab('pagos')">Pagos</button>
+      <button class="modal-tab" onclick="mTab('reprog')">Reprogramación</button>
+      <button class="modal-tab" onclick="mTab('comentarios')">Comentarios</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-alert"></div>
+      <div id="m-perfil"></div>
+      <div id="m-financiero" style="display:none"></div>
+      <div id="m-pagos" style="display:none"></div>
+      <div id="m-reprog" style="display:none"></div>
+      <div id="m-comentarios" style="display:none"></div>
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="btn" style="color:#791F1F;border-color:#F7C1C1" onclick="alumno&&moverAExTeb(alumno.id)">⭐ Mover a Ex TEB</button>
+      <button class="btn" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btn-guardar" onclick="guardarAlumno()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SURL='https://sjlaccqognqxubjeweah.supabase.co';
+const SKEY='sb_publishable_C5hjAFL3IHUfkbS-sug89g_Hu3MjmDP';
+const {createClient}=supabase;
+const db=createClient(SURL,SKEY);
+
+let ALL=[],EDS=[],alumno=null,tabM='perfil',pagoEditando=null;
+const HOY=new Date();
+
+function diasDesde(f){if(!f)return null;return Math.floor((HOY-new Date(f))/(864e5));}
+function usd(n){return 'USD '+(Math.round(n||0)).toLocaleString('es-AR');}
+function usd2(n){return 'USD '+Number(n||0).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function pVisa(v){const m={'SI':'green','NO':'red','En tramite':'amber','Rechazada':'red'};return '<span class="pill pill-'+(m[v]||'gray')+'">'+(v||'NO')+'</span>';}
+function pProg(p){const m={'Teatro Musical':'purple','Bailarin':'blue','Cantante':'amber','Musico':'green'};return '<span class="pill pill-'+(m[p]||'gray')+'">'+(p||'—')+'</span>';}
+function pPlan(p){const m={'Economy':'gray','Comfort':'blue','Comfort +':'purple','NO HOTEL':'amber'};return '<span class="pill pill-'+(m[p]||'gray')+'">'+(p||'—')+'</span>';}
+function pEstado(e){
+  const m={'Activo':'🟢','Pausado':'🟡','No responde':'🔴','Reembolso solicitado':'🟠','Baja':'⚫'};
+  const c={'Activo':'green','Pausado':'amber','No responde':'red','Reembolso solicitado':'amber','Baja':'gray'};
+  return '<span class="pill pill-'+(c[e]||'gray')+'">'+(m[e]||'●')+' '+(e||'—')+'</span>';
+}
+function estadoFinanciero(abonado, total, diasUltimoPago){
+  if(!total||total<=0)return '<span class="pill pill-gray">Sin info</span>';
+  if(abonado>=total)return '<span class="pill pill-green">✓ Pagado</span>';
+  if(diasUltimoPago===null)return '<span class="pill pill-gray">Sin pagos</span>';
+  if(diasUltimoPago<=30)return '<span class="pill pill-green">Al día</span>';
+  if(diasUltimoPago<=35)return '<span class="pill pill-amber">Pendiente</span>';
+  if(diasUltimoPago<=55)return '<span class="pill pill-amber" style="background:#FAEEDA;color:#854F0B">Atrasado</span>';
+  if(diasUltimoPago<=60)return '<span class="pill pill-red">Moroso</span>';
+  return '<span class="pill pill-red" style="background:#791F1F;color:white">Vacante liberada</span>';
+}
+function bar(ab,tot,w){
+  if(!tot)return '—';
+  const pct=Math.min(100,Math.round((ab/tot)*100));
+  const c=pct>=80?'#27500A':pct>=50?'#004225':'#791F1F';
+  return '<div class="progress"><div class="progress-bar" style="width:'+(w||70)+'px"><div class="progress-fill" style="width:'+pct+'%;background:'+c+'"></div></div><span style="font-size:11px;color:#666">'+pct+'%</span></div>';
+}
+function diasBadge(d){
+  if(d===null)return '<span style="color:#aaa;font-size:11px">Sin pagos</span>';
+  if(d<=0)return '<span class="dias-ok">Hoy</span>';
+  if(d<=30)return '<span class="dias-ok">Hace '+d+'d</span>';
+  if(d<=60)return '<span class="dias-warn">⚠ '+d+'d</span>';
+  return '<span class="dias-danger">🔴 '+d+'d moroso</span>';
+}
+function rowClass(d){if(d===null||d<=30)return '';if(d<=60)return 'row-warn';return 'row-danger';}
+function metodoColor(m){const map={'Stripe':'blue','Transferencia':'green','BOFA':'purple','MercadoPago':'amber','Efectivo':'gray','Otro':'gray'};return map[m]||'gray';}
+
+async function init(){
+  document.querySelector('.topbar h1').textContent='TEB — Panel · '+new Date().toLocaleDateString('es-AR');
+  const {data:eds}=await db.from('ediciones').select('*').order('fecha_inicio');
+  EDS=eds||[];
+  const sel=document.getElementById('filtro-edicion');
+  EDS.forEach(e=>{const o=document.createElement('option');o.value=e.id;o.textContent=e.nombre;sel.appendChild(o);});
+  const {data:al}=await db.from('alumnos').select('*,ediciones(nombre,id)').eq('es_ex_teb',false).order('nombre');
+  ALL=al||[];
+  actualizarMetricas();renderAlumnos(ALL);renderAlertas();
+}
+
+function actualizarMetricas(){
+  const cobrado=ALL.reduce((s,a)=>s+(a.total_abonado||0),0);
+  const pendiente=ALL.reduce((s,a)=>s+(a.total_a_pagar||0)-(a.total_abonado||0),0);
+  const warn=ALL.filter(a=>{const d=diasDesde(a.fecha_ultimo_pago);return d!==null&&d>30&&d<=60&&(a.total_a_pagar||0)>(a.total_abonado||0);}).length;
+  const danger=ALL.filter(a=>{const d=diasDesde(a.fecha_ultimo_pago);return d!==null&&d>60&&(a.total_a_pagar||0)>(a.total_abonado||0);}).length;
+  document.getElementById('m-total').textContent=ALL.length;
+  document.getElementById('m-cobrado').textContent=usd(cobrado);
+  document.getElementById('m-pendiente').textContent=usd(pendiente);
+  document.getElementById('m-warn').textContent=warn;
+  document.getElementById('m-danger').textContent=danger;
+  const visaAlert=alertasVisa().length;
+  document.getElementById('m-visa-alert').textContent=visaAlert>0?visaAlert+' citas':'Ninguna';
+}
+
+function renderAlumnos(lista){
+  if(!lista.length){document.getElementById('tabla-alumnos').innerHTML='<div class="loading">Sin resultados.</div>';return;}
+  let h='<div style="overflow-x:auto"><table><thead><tr><th>Nombre</th><th>Programa</th><th>Edición</th><th>Plan</th><th>Visa</th><th>Último pago</th><th>% Cobrado</th><th>Pendiente</th><th>Estado op.</th><th>Estado fin.</th><th>WA</th><th>Portal</th></tr></thead><tbody>';
+  lista.forEach(a=>{
+    const d=diasDesde(a.fecha_ultimo_pago);
+    const pend=(a.total_a_pagar||0)-(a.total_abonado||0);
+    h+='<tr class="'+rowClass(d)+'">';
+    h+='<td><span class="nombre-link" onclick="abrirAlumno(\''+a.id+'\')">'+a.nombre+'</span></td>';
+    h+='<td>'+pProg(a.programa)+'</td>';
+    h+='<td><span class="pill pill-gray">'+(a.ediciones?a.ediciones.nombre:'Sin edición asignada')+'</span></td>';
+    h+='<td>'+pPlan(a.plan)+'</td>';
+    h+='<td>'+pVisa(a.visa)+'</td>';
+    h+='<td>'+diasBadge(d)+'</td>';
+    h+='<td>'+bar(a.total_abonado,a.total_a_pagar)+'</td>';
+    h+='<td style="color:'+(pend>0?'#791F1F':'#27500A')+';font-weight:500">'+usd(pend)+'</td>';
+    h+='<td>'+pEstado(a.estado_operativo)+'</td>';
+    h+='<td>'+estadoFinanciero(a.total_abonado,a.total_a_pagar,diasDesde(a.fecha_ultimo_pago))+'</td>';
+    h+='<td>'+(a.celular?'<a class="wa-link" href="https://'+a.celular+'" target="_blank">↗</a>':'—')+'</td>';
+    h+='<td><button class="btn btn-sm" style="font-size:11px;padding:3px 8px;background:#E6F1FB;border-color:#B5D4F4;color:#0C447C" onclick="mostrarDialog(window.location.href.split(\'panel_teb_v5.html\')[0]+\'portal_alumno.html?id='+a.id+'\')" >🔗 Link</button></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div><div style="padding:8px 14px;font-size:12px;color:#888;border-top:0.5px solid #f0f0e8">'+lista.length+' alumnos</div>';
+  document.getElementById('tabla-alumnos').innerHTML=h;
+}
+
+function filtrar(){
+  const b=document.getElementById('buscar').value.toLowerCase();
+  const ed=document.getElementById('filtro-edicion').value;
+  const pr=document.getElementById('filtro-programa').value;
+  const vi=document.getElementById('filtro-visa').value;
+  renderAlumnos(ALL.filter(a=>{
+    if(b&&!a.nombre.toLowerCase().includes(b))return false;
+    if(ed&&a.edicion_id!==ed)return false;
+    if(pr&&a.programa!==pr)return false;
+    if(vi&&a.visa!==vi)return false;
+    return true;
+  }));
+}
+
+function alertasVisa(){
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  return ALL.filter(a=>{
+    if(!a.visa_fecha_cita||a.visa==='SI')return false;
+    const cita=new Date(a.visa_fecha_cita);
+    const dias=Math.ceil((cita-hoy)/(864e5));
+    return dias>=0&&dias<=20;
+  }).sort((a,b)=>new Date(a.visa_fecha_cita)-new Date(b.visa_fecha_cita));
+}
+
+function renderAlertasVisa(){
+  const lista=alertasVisa();
+  const cont=document.getElementById('tabla-alertas-visa');
+  if(!lista.length){cont.innerHTML='<div class="loading" style="color:#27500A">No hay citas de visa en los próximos 20 días.</div>';return;}
+  let h='<div style="overflow-x:auto"><table><thead><tr><th>Alumno</th><th>Fecha cita visa</th><th>Días restantes</th><th>Intento</th><th>Asesor asignado</th><th>Estado visa</th><th>WhatsApp</th></tr></thead><tbody>';
+  lista.forEach(a=>{
+    const cita=new Date(a.visa_fecha_cita);
+    const hoy=new Date();hoy.setHours(0,0,0,0);
+    const dias=Math.ceil((cita-hoy)/(864e5));
+    const urgente=dias<=5;
+    h+='<tr class="'+(urgente?'row-danger':'row-warn')+'">';
+    h+='<td><span class="nombre-link" onclick="abrirAlumno(\''+a.id+'\')">'+a.nombre+'</span></td>';
+    h+='<td style="font-weight:500">'+a.visa_fecha_cita+'</td>';
+    h+='<td><span class="pill pill-'+(urgente?'red':'amber')+'">'+dias+' días</span></td>';
+    h+='<td style="text-align:center">'+(a.visa_intento||1)+'° intento</td>';
+    h+='<td>'+(a.visa_asesor?'<span class="pill pill-blue">'+a.visa_asesor+'</span>':'<span style="color:#aaa;font-size:12px">Sin asignar</span>')+'</td>';
+    h+='<td>'+pVisa(a.visa)+'</td>';
+    h+='<td>'+(a.celular?'<a class="wa-link" href="https://'+a.celular+'" target="_blank">Escribir</a>':'—')+'</td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div><div style="padding:8px 14px;font-size:12px;color:#888;border-top:0.5px solid #f0f0e8">'+lista.length+' alumnos con cita de visa próxima</div>';
+  cont.innerHTML=h;
+}
+
+function renderAlertas(){
+  const lista=ALL.filter(a=>{const d=diasDesde(a.fecha_ultimo_pago);return d!==null&&d>30&&(a.total_a_pagar||0)>(a.total_abonado||0);}).sort((a,b)=>diasDesde(b.fecha_ultimo_pago)-diasDesde(a.fecha_ultimo_pago));
+  if(!lista.length){document.getElementById('tabla-alertas').innerHTML='<div class="loading" style="color:#27500A">No hay alertas.</div>';return;}
+  let h='<div style="overflow-x:auto"><table><thead><tr><th>Nombre</th><th>Días sin pagar</th><th>Estado</th><th>Edición</th><th>Pendiente</th><th>Último pago</th><th>WhatsApp</th></tr></thead><tbody>';
+  lista.forEach(a=>{
+    const d=diasDesde(a.fecha_ultimo_pago);
+    const pend=(a.total_a_pagar||0)-(a.total_abonado||0);
+    h+='<tr class="'+(d>60?'row-danger':'row-warn')+'">';
+    h+='<td><span class="nombre-link" onclick="abrirAlumno(\''+a.id+'\')">'+a.nombre+'</span></td>';
+    h+='<td>'+diasBadge(d)+'</td>';
+    h+='<td>'+(d>60?'<span class="pill pill-red">Moroso crítico</span>':'<span class="pill pill-amber">Atención</span>')+'</td>';
+    h+='<td><span class="pill pill-gray">'+(a.ediciones?a.ediciones.nombre:'—')+'</span></td>';
+    h+='<td style="color:#791F1F;font-weight:500">'+usd(pend)+'</td>';
+    h+='<td style="font-size:12px;color:#666">'+(a.fecha_ultimo_pago||'—')+'</td>';
+    h+='<td>'+(a.celular?'<a class="wa-link" href="https://'+a.celular+'" target="_blank">Escribir</a>':'—')+'</td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div><div style="padding:8px 14px;font-size:12px;color:#888;border-top:0.5px solid #f0f0e8">'+lista.length+' alumnos</div>';
+  document.getElementById('tabla-alertas').innerHTML=h;
+}
+
+function renderDashboard(){
+  let h='';
+  EDS.forEach(ed=>{
+    const alEd=ALL.filter(a=>a.edicion_id===ed.id);
+    if(!alEd.length)return;
+    const cobrado=alEd.reduce((s,a)=>s+(a.total_abonado||0),0);
+    const total=alEd.reduce((s,a)=>s+(a.total_a_pagar||0),0);
+    const pend=total-cobrado;
+    const pct=total>0?Math.round((cobrado/total)*100):0;
+    const morosos=alEd.filter(a=>{const d=diasDesde(a.fecha_ultimo_pago);return d!==null&&d>60&&(a.total_a_pagar||0)>(a.total_abonado||0);}).length;
+    const warn=alEd.filter(a=>{const d=diasDesde(a.fecha_ultimo_pago);return d!==null&&d>30&&d<=60&&(a.total_a_pagar||0)>(a.total_abonado||0);}).length;
+    const sinvisa=alEd.filter(a=>a.visa!=='SI').length;
+    const sincontrato=alEd.filter(a=>a.contrato!=='Firmado').length;
+    const progs={};alEd.forEach(a=>{progs[a.programa]=(progs[a.programa]||0)+1;});
+    h+='<div class="ed-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div style="font-size:14px;font-weight:500">'+ed.nombre+'</div><span class="pill pill-gray">'+alEd.length+' alumnos</span></div>';
+    h+='<div class="ed-stats">';
+    h+='<div class="ed-stat"><div class="ed-stat-val green">'+usd(cobrado)+'</div><div class="ed-stat-lbl">Cobrado</div></div>';
+    h+='<div class="ed-stat"><div class="ed-stat-val red">'+usd(pend)+'</div><div class="ed-stat-lbl">Pendiente</div></div>';
+    h+='<div class="ed-stat"><div class="ed-stat-val amber">'+morosos+'</div><div class="ed-stat-lbl">Morosos +60d</div></div>';
+    h+='<div class="ed-stat"><div class="ed-stat-val" style="color:#633806">'+warn+'</div><div class="ed-stat-lbl">Atención 30d</div></div>';
+    h+='</div>';
+    h+='<div class="prog-bar-big"><div class="prog-bar-big-fill" style="width:'+pct+'%"></div></div>';
+    h+='<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:10px"><span>'+pct+'% cobrado</span><span>'+usd(total)+' total</span></div>';
+    h+='<div style="display:flex;gap:16px;font-size:12px;color:#666;flex-wrap:wrap">';
+    h+='<span>Sin visa: <b style="color:#791F1F">'+sinvisa+'</b></span>';
+    h+='<span>Sin contrato: <b style="color:#633806">'+sincontrato+'</b></span>';
+    Object.entries(progs).forEach(([k,v])=>h+='<span>'+k+': <b>'+v+'</b></span>');
+    h+='</div>';
+    if(morosos>0){
+      h+='<div style="margin-top:12px">';
+      alEd.filter(a=>{const d=diasDesde(a.fecha_ultimo_pago);return d!==null&&d>60&&(a.total_a_pagar||0)>(a.total_abonado||0);}).slice(0,3).forEach(a=>{
+        const d=diasDesde(a.fecha_ultimo_pago);
+        h+='<div class="alerta-row alerta-danger"><span class="nombre-link" onclick="abrirAlumno(\''+a.id+'\')">'+a.nombre+'</span><span style="font-size:12px;color:#791F1F">'+d+'d · '+usd((a.total_a_pagar||0)-(a.total_abonado||0))+' pendiente</span></div>';
+      });h+='</div>';
+    }
+    h+='</div>';
+  });
+  document.getElementById('dashboard-contenido').innerHTML=h||'<div class="loading">Sin datos.</div>';
+}
+
+async function abrirAlumno(id){
+  alumno=ALL.find(a=>a.id===id);
+  if(!alumno)return;
+  document.getElementById('modal-nombre').textContent=alumno.nombre;
+  document.getElementById('modal-sub').textContent=(alumno.programa||'—')+' · '+(alumno.ediciones?alumno.ediciones.nombre:'Sin edición')+' · '+(alumno.pais||'—');
+  document.getElementById('modal-wa').innerHTML=alumno.celular?'<a class="wa-link" href="https://'+alumno.celular+'" target="_blank" style="background:#EAF3DE;padding:5px 12px;border-radius:6px;font-weight:500">WhatsApp</a>':'';
+  document.getElementById('modal-alert').innerHTML='';
+  mTab('perfil');
+  document.getElementById('modal-alumno').classList.add('open');
+}
+
+function mTab(tab){
+  tabM=tab;
+  ['perfil','financiero','pagos','reprog','comentarios'].forEach((t,i)=>{
+    document.querySelectorAll('.modal-tab')[i].classList.toggle('active',t===tab);
+    document.getElementById('m-'+t).style.display=t===tab?'block':'none';
+  });
+  const showGuardar=['perfil','financiero','reprog'].includes(tab);
+  document.getElementById('btn-guardar').style.display=showGuardar?'inline-flex':'none';
+  if(tab==='perfil')renderMPerfil();
+  if(tab==='financiero')renderMFinanciero();
+  if(tab==='pagos')renderMPagos();
+  if(tab==='reprog')renderMReprog();
+  if(tab==='comentarios')renderMComentarios();
+}
+
+function renderMPerfil(){
+  const a=alumno;const edId=a.ediciones?a.ediciones.id:'';
+  let h='<div class="section-block"><div class="section-title">Datos personales</div>';
+  h+='<div class="form-row"><div class="form-group"><label>Email</label><input type="text" id="e-correo" value="'+(a.correo||'')+'"></div><div class="form-group"><label>Teléfono / WA</label><input type="text" id="e-celular" value="'+(a.celular||'')+'"></div></div>';
+  h+='<div class="form-row"><div class="form-group"><label>País</label><input type="text" id="e-pais" value="'+(a.pais||'')+'"></div><div class="form-group"><label>Instagram</label><input type="text" id="e-instagram" value="'+(a.instagram||'')+'"></div></div></div>';
+  h+='<div class="section-block"><div class="section-title">Programa</div>';
+  h+='<div class="form-row"><div class="form-group"><label>Programa</label><select id="e-programa">';
+  ['Teatro Musical','Bailarin','Cantante','Musico'].forEach(p=>h+='<option'+(a.programa===p?' selected':'')+'>'+p+'</option>');
+  h+='</select></div><div class="form-group"><label>Edición</label><select id="e-edicion"><option value="">Sin fecha</option>';
+  EDS.forEach(e=>h+='<option value="'+e.id+'"'+(edId===e.id?' selected':'')+'>'+e.nombre+'</option>');
+  h+='</select></div></div>';
+  h+='<div class="form-row"><div class="form-group"><label>Plan</label><select id="e-plan">';
+  ['Economy','Comfort','Comfort +','NO HOTEL'].forEach(p=>h+='<option'+(a.plan===p?' selected':'')+'>'+p+'</option>');
+  h+='</select></div><div class="form-group"><label>Estado operativo</label><select id="e-estado">';
+  ['Activo','Pausado','No responde','Reembolso solicitado','Baja'].forEach(s=>h+='<option'+(a.estado_operativo===s?' selected':'')+'>'+s+'</option>');
+  h+='</select></div></div></div>';
+  h+='<div class="section-block"><div class="section-title">Documentación</div><div class="form-row-3">';
+  h+='<div class="form-group"><label>Visa</label><select id="e-visa">';
+  ['NO','SI','En tramite','Rechazada'].forEach(v=>h+='<option'+(a.visa===v?' selected':'')+'>'+v+'</option>');
+  h+='</select></div><div class="form-group"><label>Contrato</label><select id="e-contrato">';
+  ['Pendiente','Enviado','Firmado'].forEach(v=>h+='<option'+(a.contrato===v?' selected':'')+'>'+v+'</option>');
+  h+='</select></div><div class="form-group"><label>Deslinde</label><select id="e-deslinde">';
+  ['Pendiente','Enviado','Firmado'].forEach(v=>h+='<option'+(a.deslinde===v?' selected':'')+'>'+v+'</option>');
+  h+='</select></div></div></div>';
+  document.getElementById('m-perfil').innerHTML=h;
+}
+
+function renderMFinanciero(){
+  const a=alumno;
+  const pend=(a.total_a_pagar||0)-(a.total_abonado||0);
+  let h='<div class="fin-box"><div class="fin-grid-4">';
+  h+='<div class="fin-item"><label>Valor programa</label><span>'+usd(a.valor_programa)+'</span></div>';
+  h+='<div class="fin-item"><label>Beca/descuento</label><span style="color:#27500A">- '+usd(a.beca)+'</span></div>';
+  h+='<div class="fin-item"><label>Upgrade</label><span style="color:#0C447C">+ '+usd(a.upgrade)+'</span></div>';
+  h+='<div class="fin-item"><label>Reprogramación</label><span style="color:#633806">+ '+usd(a.costo_reprogramacion)+'</span></div>';
+  h+='</div><hr class="fin-divider"><div class="fin-grid-3">';
+  h+='<div class="fin-item"><label>Total a pagar</label><span style="font-size:18px">'+usd(a.total_a_pagar)+'</span></div>';
+  h+='<div class="fin-item"><label>Abonado</label><span style="color:#27500A;font-size:18px">'+usd(a.total_abonado)+'</span></div>';
+  h+='<div class="fin-item"><label>Pendiente</label><span style="color:'+(pend>0?'#791F1F':'#27500A')+';font-size:18px">'+usd(pend)+'</span></div>';
+  h+='</div><div style="margin-top:10px">'+bar(a.total_abonado,a.total_a_pagar,200)+'</div></div>';
+  h+='<div class="section-block"><div class="section-title">Editar importes</div><div class="form-row-3">';
+  h+='<div class="form-group"><label>Valor programa (USD)</label><input type="number" id="e-valor" value="'+(a.valor_programa||0)+'"></div>';
+  h+='<div class="form-group"><label>Beca/descuento (USD)</label><input type="number" id="e-beca" value="'+(a.beca||0)+'"></div>';
+  h+='<div class="form-group"><label>Upgrade (USD)</label><input type="number" id="e-upgrade" value="'+(a.upgrade||0)+'"></div>';
+  h+='</div><div class="form-row-3">';
+  h+='<div class="form-group"><label>Costo reprogramación (USD)</label><input type="number" id="e-reprog" value="'+(a.costo_reprogramacion||0)+'"></div>';
+  h+='<div class="form-group"><label>Total a pagar (USD)</label><input type="number" id="e-total" value="'+(a.total_a_pagar||0)+'"></div>';
+  h+='<div class="form-group"><label>Total abonado (USD)</label><input type="number" id="e-abonado" value="'+(a.total_abonado||0)+'"></div>';
+  h+='</div></div>';
+  h+='<div class="section-block"><div class="section-title">Plan de pagos</div>';
+  h+='<div class="form-group"><label>Descripción del plan</label><textarea id="e-plan-pagos" style="height:70px;width:100%">'+(a.comentario_plan||'')+'</textarea></div></div>';
+  document.getElementById('m-financiero').innerHTML=h;
+}
+
+async function renderMPagos(){
+  document.getElementById('m-pagos').innerHTML='<div class="loading">Cargando pagos...</div>';
+  const {data:pagos}=await db.from('pagos').select('*').eq('alumno_id',alumno.id).order('fecha',{ascending:false});
+  const pend=(alumno.total_a_pagar||0)-(alumno.total_abonado||0);
+
+  let h='<div class="fin-box"><div class="fin-grid-3">';
+  h+='<div class="fin-item"><label>Total a pagar</label><span>'+usd(alumno.total_a_pagar)+'</span></div>';
+  h+='<div class="fin-item"><label>Abonado</label><span style="color:#27500A">'+usd(alumno.total_abonado)+'</span></div>';
+  h+='<div class="fin-item"><label>Pendiente</label><span style="color:'+(pend>0?'#791F1F':'#27500A')+'">'+usd(pend)+'</span></div>';
+  h+='</div><div style="margin-top:8px">'+bar(alumno.total_abonado,alumno.total_a_pagar,200)+'</div></div>';
+
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+  h+='<div class="section-title" style="margin:0">Pagos registrados ('+(pagos?pagos.length:0)+')</div>';
+  h+='<button class="btn btn-primary btn-sm" onclick="toggleAddPago()">+ Agregar pago</button></div>';
+
+  // Formulario agregar pago
+  h+='<div id="add-pago-form" class="add-pago-form" style="display:none">';
+  h+='<div class="add-pago-title">Nuevo pago</div>';
+  h+='<div class="form-row"><div class="form-group"><label>Fecha</label><input type="date" id="np-fecha" value="'+new Date().toISOString().split('T')[0]+'"></div>';
+  h+='<div class="form-group"><label>Monto USD</label><input type="number" id="np-monto-usd" placeholder="0"></div></div>';
+  h+='<div class="form-row"><div class="form-group"><label>Monto ARS (opcional)</label><input type="number" id="np-monto-ars" placeholder="0"></div>';
+  h+='<div class="form-group"><label>Tipo de cambio</label><input type="number" id="np-tc" placeholder="ej: 1200"></div></div>';
+  h+='<div class="form-row"><div class="form-group"><label>Método</label><select id="np-metodo"><option>Stripe</option><option>Transferencia</option><option>MercadoPago</option><option>BOFA</option><option>Efectivo</option><option>Otro</option></select></div>';
+  h+='<div class="form-group"><label>Cuota #</label><input type="number" id="np-cuota" placeholder="1"></div></div>';
+  h+='<div class="form-row"><div class="form-group"><label>Quién recibió</label><input type="text" id="np-quien" placeholder="TEB / Maru..."></div>';
+  h+='<div class="form-group"><label>Notas</label><input type="text" id="np-notas" placeholder="Observaciones..."></div></div>';
+  h+='<div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" onclick="guardarNuevoPago()">Guardar pago</button><button class="btn btn-sm" onclick="toggleAddPago()">Cancelar</button></div>';
+  h+='</div>';
+
+  // Lista de pagos existentes
+  if(!pagos||!pagos.length){
+    h+='<div style="text-align:center;padding:20px;color:#aaa;font-size:13px">No hay pagos registrados todavía.</div>';
+  } else {
+    const tot=pagos.reduce((s,p)=>s+(p.monto||0),0);
+    pagos.forEach(p=>{
+      h+='<div class="pago-card" id="pago-'+p.id+'">';
+      h+='<div class="pago-card-header" onclick="togglePagoCard(\''+p.id+'\')">';
+      h+='<div class="pago-badge">';
+      h+='<span style="font-size:13px;font-weight:500;color:#27500A">'+usd2(p.monto)+'</span>';
+      h+='<span class="pill pill-'+metodoColor(p.metodo)+'">'+p.metodo+'</span>';
+      if(p.cuota)h+='<span class="pill pill-gray">Cuota '+p.cuota+'</span>';
+      h+='</div>';
+      h+='<div style="display:flex;align-items:center;gap:8px">';
+      h+='<span style="font-size:12px;color:#888">'+(p.fecha||'—')+(p.quien_recibio?' · '+p.quien_recibio:'')+'</span>';
+      h+='<span style="color:#888;font-size:12px">▾</span>';
+      h+='</div></div>';
+      // Body editable
+      h+='<div class="pago-card-body" id="body-'+p.id+'">';
+      h+='<div class="form-row"><div class="form-group"><label>Fecha</label><input type="date" id="pf-fecha-'+p.id+'" value="'+(p.fecha||'')+'"></div>';
+      h+='<div class="form-group"><label>Monto USD</label><input type="number" id="pf-monto-'+p.id+'" value="'+(p.monto||0)+'"></div></div>';
+      h+='<div class="form-row"><div class="form-group"><label>Método</label><select id="pf-metodo-'+p.id+'">';
+      ['Stripe','Transferencia','MercadoPago','BOFA','Efectivo','Otro'].forEach(m=>h+='<option'+(p.metodo===m?' selected':'')+'>'+m+'</option>');
+      h+='</select></div><div class="form-group"><label>Cuota #</label><input type="number" id="pf-cuota-'+p.id+'" value="'+(p.cuota||'')+'"></div></div>';
+      h+='<div class="form-row"><div class="form-group"><label>Quién recibió</label><input type="text" id="pf-quien-'+p.id+'" value="'+(p.quien_recibio||'')+'"></div>';
+      h+='<div class="form-group"><label>Notas</label><input type="text" id="pf-notas-'+p.id+'" value="'+(p.notas||'')+'"></div></div>';
+      h+='<div style="display:flex;gap:8px;margin-top:4px">';
+      h+='<button class="btn btn-primary btn-sm" onclick="editarPago(\''+p.id+'\')">Guardar cambios</button>';
+      h+='<button class="btn btn-danger btn-sm" onclick="eliminarPago(\''+p.id+'\','+p.monto+')">Eliminar pago</button>';
+      h+='</div></div></div>';
+    });
+    h+='<div style="display:flex;justify-content:space-between;padding:12px 0;font-size:13px;font-weight:500;border-top:0.5px solid #e0e0d8;margin-top:8px">';
+    h+='<span>Total registrado</span><span style="color:#27500A">'+usd2(tot)+'</span></div>';
+  }
+
+  document.getElementById('m-pagos').innerHTML=h;
+}
+
+function togglePagoCard(id){
+  const body=document.getElementById('body-'+id);
+  body.classList.toggle('open');
+}
+
+function toggleAddPago(){
+  const f=document.getElementById('add-pago-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+
+async function guardarNuevoPago(){
+  const fecha=document.getElementById('np-fecha').value;
+  const montoUSD=parseFloat(document.getElementById('np-monto-usd').value)||0;
+  const montoARS=parseFloat(document.getElementById('np-monto-ars').value)||0;
+  const tc=parseFloat(document.getElementById('np-tc').value)||0;
+  const metodo=document.getElementById('np-metodo').value;
+  const cuota=parseInt(document.getElementById('np-cuota').value)||null;
+  const quien=document.getElementById('np-quien').value;
+  const notas=document.getElementById('np-notas').value;
+  const alertEl=document.getElementById('modal-alert');
+
+  if(!fecha||(!montoUSD&&!montoARS)){alertEl.innerHTML='<div class="alert alert-error">Completá fecha y monto.</div>';return;}
+
+  const montoARSenUSD=tc>0?montoARS/tc:0;
+  const montoTotal=montoUSD+montoARSenUSD;
+  const notasCompletas=[notas,montoARS>0?'ARS $ '+Math.round(montoARS).toLocaleString('es-AR')+(tc>0?' (TC:'+tc+')':''):''].filter(Boolean).join(' · ')||null;
+
+  const {error}=await db.from('pagos').insert({alumno_id:alumno.id,fecha,monto:montoTotal,metodo,cuota,quien_recibio:quien||null,notas:notasCompletas});
+  if(error){alertEl.innerHTML='<div class="alert alert-error">Error: '+error.message+'</div>';return;}
+
+  // Actualizar saldo alumno
+  alumno.total_abonado=(alumno.total_abonado||0)+montoTotal;
+  alumno.fecha_ultimo_pago=fecha;
+  await db.from('alumnos').update({total_abonado:alumno.total_abonado,fecha_ultimo_pago:fecha}).eq('id',alumno.id);
+  ALL.find(a=>a.id===alumno.id).total_abonado=alumno.total_abonado;
+  ALL.find(a=>a.id===alumno.id).fecha_ultimo_pago=fecha;
+
+  alertEl.innerHTML='<div class="alert alert-success">Pago agregado correctamente.</div>';
+  setTimeout(()=>alertEl.innerHTML='',2500);
+  actualizarMetricas();filtrar();renderAlertas();
+  renderMPagos();
+}
+
+async function editarPago(pagoId){
+  const alertEl=document.getElementById('modal-alert');
+  const fecha=document.getElementById('pf-fecha-'+pagoId).value;
+  const monto=parseFloat(document.getElementById('pf-monto-'+pagoId).value)||0;
+  const metodo=document.getElementById('pf-metodo-'+pagoId).value;
+  const cuota=parseInt(document.getElementById('pf-cuota-'+pagoId).value)||null;
+  const quien=document.getElementById('pf-quien-'+pagoId).value;
+  const notas=document.getElementById('pf-notas-'+pagoId).value;
+
+  const {error}=await db.from('pagos').update({fecha,monto,metodo,cuota,quien_recibio:quien||null,notas:notas||null}).eq('id',pagoId);
+  if(error){alertEl.innerHTML='<div class="alert alert-error">Error: '+error.message+'</div>';return;}
+
+  // Recalcular total abonado
+  const {data:pagos}=await db.from('pagos').select('monto,fecha').eq('alumno_id',alumno.id).order('fecha',{ascending:false});
+  if(pagos){
+    const total=pagos.reduce((s,p)=>s+(p.monto||0),0);
+    const ultima=pagos[0]?.fecha||null;
+    alumno.total_abonado=total;
+    alumno.fecha_ultimo_pago=ultima;
+    await db.from('alumnos').update({total_abonado:total,fecha_ultimo_pago:ultima}).eq('id',alumno.id);
+    const al=ALL.find(a=>a.id===alumno.id);
+    if(al){al.total_abonado=total;al.fecha_ultimo_pago=ultima;}
+  }
+
+  alertEl.innerHTML='<div class="alert alert-success">Pago actualizado.</div>';
+  setTimeout(()=>alertEl.innerHTML='',2000);
+  actualizarMetricas();filtrar();renderAlertas();
+  renderMPagos();
+}
+
+async function eliminarPago(pagoId,monto){
+  if(!confirm('¿Eliminar este pago de '+usd2(monto)+'? Esta acción no se puede deshacer.'))return;
+  const alertEl=document.getElementById('modal-alert');
+  const {error}=await db.from('pagos').delete().eq('id',pagoId);
+  if(error){alertEl.innerHTML='<div class="alert alert-error">Error: '+error.message+'</div>';return;}
+
+  // Recalcular
+  const {data:pagos}=await db.from('pagos').select('monto,fecha').eq('alumno_id',alumno.id).order('fecha',{ascending:false});
+  const total=pagos?pagos.reduce((s,p)=>s+(p.monto||0),0):0;
+  const ultima=pagos&&pagos.length?pagos[0].fecha:null;
+  alumno.total_abonado=total;alumno.fecha_ultimo_pago=ultima;
+  await db.from('alumnos').update({total_abonado:total,fecha_ultimo_pago:ultima}).eq('id',alumno.id);
+  const al=ALL.find(a=>a.id===alumno.id);
+  if(al){al.total_abonado=total;al.fecha_ultimo_pago=ultima;}
+
+  alertEl.innerHTML='<div class="alert alert-success">Pago eliminado.</div>';
+  setTimeout(()=>alertEl.innerHTML='',2000);
+  actualizarMetricas();filtrar();renderAlertas();
+  renderMPagos();
+}
+
+function renderMReprog(){
+  const a=alumno;
+  let h='<div class="section-block"><div class="section-title">Estado de reprogramación</div>';
+  h+='<div class="form-row-3">';
+  h+='<div class="form-group"><label>¿Fue reprogramado?</label><select id="e-reprog-estado">';
+  ['No','Sí (1 vez)','Sí (2 veces)','Sí (3 o más veces)'].forEach(v=>h+='<option'+(a.reprogramacion_estado===v?' selected':'')+'>'+v+'</option>');
+  h+='</select></div>';
+  h+='<div class="form-group"><label>Costo reprogramación (USD)</label><input type="number" id="e-reprog-costo" value="'+(a.costo_reprogramacion||0)+'"></div>';
+  h+='<div class="form-group"><label>¿Costo cobrado?</label><select id="e-reprog-cobrado">';
+  ['No aplica','Sin costo (gratis)','Pendiente de cobro','Sí cobrado'].forEach(v=>h+='<option'+(a.reprogramacion_cobrado===v?' selected':'')+'>'+v+'</option>');
+  h+='</select></div></div>';
+  h+='<div class="form-group"><label>Edición original</label><select id="e-reprog-edicion-orig"><option value="">No aplica</option>';
+  EDS.forEach(e=>h+='<option value="'+e.id+'"'+(a.edicion_original_id===e.id?' selected':'')+'>'+e.nombre+'</option>');
+  h+='</select></div>';
+  h+='<div class="form-group"><label>Notas de reprogramación</label><textarea id="e-reprog-notas" style="height:80px;width:100%">'+(a.notas_reprogramacion||'')+'</textarea></div></div>';
+  document.getElementById('m-reprog').innerHTML=h;
+}
+
+async function renderMComentarios(){
+  const a=alumno;
+  let h='<div class="section-title">Notas internas</div>';
+  if(a.comentario){
+    const partes=a.comentario.split(/\n\n(?=\[)/);
+    partes.forEach(p=>{
+      if(!p.trim())return;
+      const m=p.match(/^\[(.+?) - (.+?)\]: ([\s\S]*)/);
+      if(m){h+='<div class="comentario-item"><div class="comentario-fecha">'+m[1]+'</div><div class="comentario-texto">'+m[3]+'</div><div class="comentario-autor">— '+m[2]+'</div></div>';}
+      else{h+='<div class="comentario-item"><div class="comentario-fecha">Nota original</div><div class="comentario-texto">'+p.trim()+'</div></div>';}
+    });
+  } else {h+='<div style="color:#aaa;font-size:13px;padding:10px 0">Sin notas previas.</div>';}
+  h+='<div class="comentario-add"><div style="font-size:12px;font-weight:500;color:#666;margin-bottom:8px">Agregar nueva nota</div>';
+  h+='<textarea id="nuevo-comentario" placeholder="Escribí tu nota..."></textarea>';
+  h+='<div style="display:flex;gap:8px"><input type="text" id="autor-comentario" placeholder="Tu nombre" style="width:150px">';
+  h+='<button class="btn btn-primary btn-sm" onclick="agregarComentario()">Guardar nota</button></div></div>';
+  document.getElementById('m-comentarios').innerHTML=h;
+  document.getElementById('btn-guardar').style.display='none';
+}
+
+async function agregarComentario(){
+  const texto=document.getElementById('nuevo-comentario').value.trim();
+  const autor=document.getElementById('autor-comentario').value.trim()||'Equipo TEB';
+  if(!texto)return;
+  const fecha=new Date().toLocaleDateString('es-AR');
+  const nueva=(alumno.comentario||'')+'\n\n['+fecha+' - '+autor+']: '+texto;
+  const {error}=await db.from('alumnos').update({comentario:nueva}).eq('id',alumno.id);
+  if(error){alert('Error: '+error.message);return;}
+  alumno.comentario=nueva;
+  ALL.find(a=>a.id===alumno.id).comentario=nueva;
+  renderMComentarios();
+}
+
+async function guardarAlumno(){
+  if(!alumno)return;
+  const alertEl=document.getElementById('modal-alert');
+  let updates={};
+  if(tabM==='perfil'){
+    function gv(id){const el=document.getElementById(id);return el?el.value:null;}
+    updates={
+      visa:gv('e-visa'),
+      contrato:gv('e-contrato'),
+      deslinde:gv('e-deslinde'),
+      doc_reprogramacion:gv('e-doc-reprog'),
+      programa:gv('e-programa'),
+      plan:gv('e-plan'),
+      estado_operativo:gv('e-estado'),
+      edicion_id:gv('e-edicion')||null,
+      correo:gv('e-correo'),
+      celular:gv('e-celular'),
+      pais:gv('e-pais'),
+      instagram:gv('e-instagram'),
+      visa_intento:parseInt(gv('e-visa-intento'))||1,
+      visa_asesor:gv('e-visa-asesor')||null,
+      visa_fecha_cita:gv('e-visa-fecha')||null
+    };
+    // Limpiar nulls de campos que no existen en el DOM
+    Object.keys(updates).forEach(k=>{if(updates[k]===null&&k!=='edicion_id'&&k!=='visa_asesor'&&k!=='visa_fecha_cita'&&k!=='doc_reprogramacion')delete updates[k];});
+  } else if(tabM==='financiero'){
+    updates={valor_programa:parseFloat(document.getElementById('e-valor').value)||0,beca:parseFloat(document.getElementById('e-beca').value)||0,upgrade:parseFloat(document.getElementById('e-upgrade').value)||0,costo_reprogramacion:parseFloat(document.getElementById('e-reprog').value)||0,total_a_pagar:parseFloat(document.getElementById('e-total').value)||0,total_abonado:parseFloat(document.getElementById('e-abonado').value)||0,comentario_plan:document.getElementById('e-plan-pagos').value};
+  } else if(tabM==='reprog'){
+    updates={reprogramacion_estado:document.getElementById('e-reprog-estado').value,costo_reprogramacion:parseFloat(document.getElementById('e-reprog-costo').value)||0,reprogramacion_cobrado:document.getElementById('e-reprog-cobrado').value,edicion_original_id:document.getElementById('e-reprog-edicion-orig').value||null,notas_reprogramacion:document.getElementById('e-reprog-notas').value};
+  }
+  const {error}=await db.from('alumnos').update(updates).eq('id',alumno.id);
+  if(error){alertEl.innerHTML='<div class="alert alert-error">Error: '+error.message+'</div>';return;}
+  Object.assign(alumno,updates);
+  if(updates.edicion_id){const e=EDS.find(x=>x.id===updates.edicion_id);alumno.ediciones=e?{nombre:e.nombre,id:e.id}:null;}
+  ALL[ALL.findIndex(a=>a.id===alumno.id)]={...alumno};
+  alertEl.innerHTML='<div class="alert alert-success" style="font-size:14px;font-weight:500">✓ Cambios guardados correctamente.</div>';
+  setTimeout(()=>alertEl.innerHTML='',3000);
+  filtrar();renderAlertas();actualizarMetricas();
+}
+
+// ESTADO DE CUENTA
+function filtrarCuenta(){
+  const b=document.getElementById('buscar-cuenta').value.toLowerCase();
+  if(b.length<2){document.getElementById('lista-cuenta').innerHTML='<div style="font-size:13px;color:#888">Escribí al menos 2 letras.</div>';document.getElementById('estado-cuenta').style.display='none';return;}
+  const encontrados=ALL.filter(a=>a.nombre.toLowerCase().includes(b)).slice(0,8);
+  if(!encontrados.length){document.getElementById('lista-cuenta').innerHTML='<div style="font-size:13px;color:#888">Sin resultados.</div>';return;}
+  let h='<div style="display:flex;flex-direction:column;gap:6px">';
+  encontrados.forEach(a=>{
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8f8f5;border-radius:8px;cursor:pointer;border:0.5px solid #e0e0d8" onclick="verCuenta(\''+a.id+'\')">';
+    h+='<div><div style="font-size:13px;font-weight:500">'+a.nombre+'</div><div style="font-size:12px;color:#888">'+(a.programa||'—')+' · '+(a.ediciones?a.ediciones.nombre:'Sin edición')+'</div></div>';
+    h+='<button class="btn btn-primary btn-sm">Ver estado de cuenta</button></div>';
+  });
+  h+='</div>';
+  document.getElementById('lista-cuenta').innerHTML=h;
+}
+
+async function verCuenta(id){
+  const a=ALL.find(x=>x.id===id);if(!a)return;
+  document.getElementById('estado-cuenta').style.display='block';
+  const {data:pagos}=await db.from('pagos').select('*').eq('alumno_id',a.id).order('fecha');
+  const pend=(a.total_a_pagar||0)-(a.total_abonado||0);
+  document.getElementById('c-nombre').textContent=a.nombre;
+  document.getElementById('c-sub').textContent=(a.programa||'—')+' · '+(a.ediciones?a.ediciones.nombre:'Sin edición')+' · Plan '+(a.plan||'Economy')+' · '+(a.pais||'—');
+  let info='';
+  info+='<div class="cuenta-row"><span>Programa</span><span>'+(a.programa||'—')+'</span></div>';
+  info+='<div class="cuenta-row"><span>Edición</span><span>'+(a.ediciones?a.ediciones.nombre:'Sin asignar')+'</span></div>';
+  info+='<div class="cuenta-row"><span>Plan</span><span>'+(a.plan||'Economy')+'</span></div>';
+  info+='<div class="cuenta-row"><span>Estado visa</span><span>'+(a.visa||'NO')+'</span></div>';
+  info+='<div class="cuenta-row"><span>Estado contrato</span><span>'+(a.contrato||'Pendiente')+'</span></div>';
+  document.getElementById('c-info').innerHTML=info;
+  let eco='';
+  eco+='<div class="cuenta-row"><span>Valor del programa</span><span>'+usd2(a.valor_programa)+'</span></div>';
+  if(a.beca>0)eco+='<div class="cuenta-row"><span>Beca / descuento</span><span style="color:#27500A">- '+usd2(a.beca)+'</span></div>';
+  if(a.upgrade>0)eco+='<div class="cuenta-row"><span>Upgrade</span><span style="color:#0C447C">+ '+usd2(a.upgrade)+'</span></div>';
+  if(a.costo_reprogramacion>0)eco+='<div class="cuenta-row"><span>Costo de reprogramación</span><span style="color:#633806">+ '+usd2(a.costo_reprogramacion)+'</span></div>';
+  eco+='<div class="cuenta-row total"><span>Total a pagar</span><span>'+usd2(a.total_a_pagar)+'</span></div>';
+  eco+='<div class="cuenta-row" style="padding-top:10px"><span>Total abonado</span><span style="color:#27500A;font-weight:500">'+usd2(a.total_abonado)+'</span></div>';
+  eco+='<div class="cuenta-row"><span>Saldo pendiente</span><span style="color:'+(pend>0?'#791F1F':'#27500A')+';font-weight:600">'+usd2(pend)+'</span></div>';
+  document.getElementById('c-economia').innerHTML=eco;
+  let pagosH='';
+  if(!pagos||!pagos.length){pagosH='<div style="font-size:13px;color:#aaa;padding:10px 0">No hay pagos registrados.</div>';}
+  else{
+    pagos.forEach((p,i)=>{
+      pagosH+='<div class="cuenta-pago"><span style="color:#888;font-size:12px">'+(p.cuota?'Cuota '+p.cuota:'Pago '+(i+1))+'</span><span>'+(p.fecha||'—')+'</span><span style="font-size:12px;color:#666">'+(p.metodo||'—')+'</span><span style="font-weight:500;color:#27500A">'+usd2(p.monto)+'</span></div>';
+    });
+    const tot=pagos.reduce((s,p)=>s+(p.monto||0),0);
+    pagosH+='<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;border-top:1px solid #e0e0d8;padding-top:10px;margin-top:6px"><span>Total abonado</span><span style="color:#27500A">'+usd2(tot)+'</span></div>';
+  }
+  document.getElementById('c-pagos').innerHTML=pagosH;
+  document.getElementById('estado-cuenta').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function copiarLink(alumnoId){
+  const base=window.location.href.split('panel_teb_v5.html')[0];
+  const link=base+'portal_alumno.html?id='+alumnoId;
+  function hacerCopia(){
+    const ta=document.createElement('textarea');
+    ta.value=link;ta.style.cssText='position:fixed;left:-9999px;top:0';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand('copy');mostrarOk();}catch(e){mostrarDialog(link);}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(link).then(mostrarOk).catch(()=>hacerCopia());
+  } else {
+    hacerCopia();
+  }
+}
+function mostrarOk(){
+  const m=document.createElement('div');
+  m.style.cssText='position:fixed;top:20px;right:20px;background:#004225;color:white;padding:12px 20px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3)';
+  m.textContent='\u2713 Link copiado. Mand\u00e1selo al alumno por WhatsApp.';
+  document.body.appendChild(m);setTimeout(()=>m.remove(),3500);
+}
+function mostrarDialog(link){
+  const o=document.createElement('div');
+  o.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9998;display:flex;align-items:center;justify-content:center';
+  o.innerHTML='<div style="background:white;border-radius:12px;padding:24px;width:480px;max-width:90vw"><div style="font-size:14px;font-weight:500;margin-bottom:8px">Link del portal</div><div style="font-size:12px;color:#888;margin-bottom:10px">Cop\u00ed este link y mand\u00e1selo al alumno:</div><input id="link-input" type="text" value="'+link+'" style="width:100%;padding:8px 12px;border:0.5px solid #d0d0c8;border-radius:6px;font-size:12px;margin-bottom:12px" readonly><div style="display:flex;gap:8px"><button onclick="document.getElementById(\'link-input\').select();document.execCommand(\'copy\');this.textContent=\'Copiado!\'" style="background:#004225;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Copiar</button><button onclick="this.closest(\'div\').parentElement.remove()" style="background:#f5f5f0;border:0.5px solid #d0d0c8;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Cerrar</button></div></div>';
+  document.body.appendChild(o);
+  setTimeout(()=>document.getElementById('link-input').select(),100);
+}
+async function subirContrato(tipo, inputId){
+  const input = document.getElementById(inputId);
+  const file = input.files[0];
+  if(!file||!alumno)return;
+  if(file.type!=='application/pdf'){alert('Solo se aceptan archivos PDF.');return;}
+  if(file.size>5*1024*1024){alert('El archivo no puede superar 5MB.');return;}
+
+  const alertEl=document.getElementById('modal-alert');
+  alertEl.innerHTML='<div class="alert alert-info">Subiendo PDF...</div>';
+
+  const fileName=tipo+'_'+alumno.id+'_'+Date.now()+'.pdf';
+  const {data,error}=await db.storage.from('contratos').upload(fileName,file,{upsert:true});
+
+  if(error){alertEl.innerHTML='<div class="alert alert-error">Error al subir: '+error.message+'</div>';return;}
+
+  const {data:urlData}=db.storage.from('contratos').getPublicUrl(fileName);
+  const url=urlData.publicUrl;
+
+  const campo=tipo==='contrato'?'contrato_url':'reprog_url';
+  const {error:e2}=await db.from('alumnos').update({[campo]:url}).eq('id',alumno.id);
+  if(e2){alertEl.innerHTML='<div class="alert alert-error">Error al guardar URL: '+e2.message+'</div>';return;}
+
+  alumno[campo]=url;
+  ALL.find(a=>a.id===alumno.id)[campo]=url;
+  alertEl.innerHTML='<div class="alert alert-success">✓ PDF subido correctamente. El alumno ya puede verlo en su portal.</div>';
+  setTimeout(()=>alertEl.innerHTML='',3000);
+  input.value='';
+  mTab(tabM);
+}
+
+function cerrarModal(){document.getElementById('modal-alumno').classList.remove('open');alumno=null;}
+async function renderExTeb(){
+  const {data}=await db.from('alumnos').select('*,ediciones(nombre)').eq('es_ex_teb',true).order('nombre');
+  const lista=data||[];
+  if(!lista.length){document.getElementById('tabla-ex-teb').innerHTML='<div class="loading">No hay ex alumnos registrados todavía.</div>';return;}
+  let h='<div style="overflow-x:auto"><table><thead><tr><th>Nombre</th><th>Programa</th><th>Edición</th><th>Plan</th><th>% Cobrado</th><th>Acción</th></tr></thead><tbody>';
+  lista.forEach(a=>{
+    h+='<tr><td style="font-weight:500">'+a.nombre+'</td>';
+    h+='<td>'+pProg(a.programa)+'</td>';
+    h+='<td><span class="pill pill-gray">'+(a.ediciones?a.ediciones.nombre:'—')+'</span></td>';
+    h+='<td>'+pPlan(a.plan)+'</td>';
+    h+='<td>'+bar(a.total_abonado,a.total_a_pagar)+'</td>';
+    h+='<td><button class="btn btn-sm" onclick="moverDeExTeb(\''+a.id+'\')">↩ Restaurar</button></td></tr>';
+  });
+  h+='</tbody></table></div><div style="padding:8px 14px;font-size:12px;color:#888;border-top:0.5px solid #f0f0e8">'+lista.length+' ex alumnos</div>';
+  document.getElementById('tabla-ex-teb').innerHTML=h;
+}
+
+async function moverAExTeb(id){
+  if(!confirm('¿Mover este alumno a Ex TEB? Ya no aparecerá en la lista principal.'))return;
+  await db.from('alumnos').update({es_ex_teb:true}).eq('id',id);
+  ALL=ALL.filter(a=>a.id!==id);
+  actualizarMetricas();filtrar();renderAlertas();renderAlertasVisa();
+  cerrarModal();
+  document.getElementById('alert-global').innerHTML='<div class="alert alert-success">Alumno movido a Ex TEB.</div>';
+  setTimeout(()=>document.getElementById('alert-global').innerHTML='',3000);
+}
+
+async function moverDeExTeb(id){
+  await db.from('alumnos').update({es_ex_teb:false}).eq('id',id);
+  renderExTeb();
+}
+
+function mostrarTab(tab){
+  ['alumnos','dashboard','alertas','alertas-visa','ex-teb','cuenta'].forEach(t=>{
+    const el=document.getElementById('sec-'+t);
+    if(el)el.style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['alumnos','dashboard','alertas','alertas-visa','ex-teb','cuenta'][i]===tab));
+  if(tab==='dashboard')renderDashboard();
+  if(tab==='alertas-visa')renderAlertasVisa();
+  if(tab==='ex-teb')renderExTeb();
+}
+document.getElementById('modal-alumno').addEventListener('click',function(e){if(e.target===this)cerrarModal();});
+init();
+</script>
+</body>
+</html>
