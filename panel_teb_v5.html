@@ -776,17 +776,33 @@ async function verCuenta(id){
 }
 
 function copiarLink(alumnoId){
-  const base=window.location.href.replace('panel_teb_v5.html','').replace(window.location.search,'');
+  const base=window.location.href.split('panel_teb_v5.html')[0];
   const link=base+'portal_alumno.html?id='+alumnoId;
-  navigator.clipboard.writeText(link).then(()=>{
-    const msg=document.createElement('div');
-    msg.style.cssText='position:fixed;top:20px;right:20px;background:#004225;color:white;padding:10px 18px;border-radius:8px;font-size:13px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2)';
-    msg.textContent='✓ Link del portal copiado';
-    document.body.appendChild(msg);
-    setTimeout(()=>msg.remove(),2500);
-  }).catch(()=>{
-    prompt('Copiá este link y mandáselo al alumno:',base+'portal_alumno.html?id='+alumnoId);
-  });
+  function hacerCopia(){
+    const ta=document.createElement('textarea');
+    ta.value=link;ta.style.cssText='position:fixed;left:-9999px;top:0';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand('copy');mostrarOk();}catch(e){mostrarDialog(link);}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(link).then(mostrarOk).catch(()=>hacerCopia());
+  } else {
+    hacerCopia();
+  }
+}
+function mostrarOk(){
+  const m=document.createElement('div');
+  m.style.cssText='position:fixed;top:20px;right:20px;background:#004225;color:white;padding:12px 20px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3)';
+  m.textContent='\u2713 Link copiado. Mand\u00e1selo al alumno por WhatsApp.';
+  document.body.appendChild(m);setTimeout(()=>m.remove(),3500);
+}
+function mostrarDialog(link){
+  const o=document.createElement('div');
+  o.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9998;display:flex;align-items:center;justify-content:center';
+  o.innerHTML='<div style="background:white;border-radius:12px;padding:24px;width:480px;max-width:90vw"><div style="font-size:14px;font-weight:500;margin-bottom:8px">Link del portal</div><div style="font-size:12px;color:#888;margin-bottom:10px">Cop\u00ed este link y mand\u00e1selo al alumno:</div><input id="link-input" type="text" value="'+link+'" style="width:100%;padding:8px 12px;border:0.5px solid #d0d0c8;border-radius:6px;font-size:12px;margin-bottom:12px" readonly><div style="display:flex;gap:8px"><button onclick="document.getElementById(\'link-input\').select();document.execCommand(\'copy\');this.textContent=\'Copiado!\'" style="background:#004225;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Copiar</button><button onclick="this.closest(\'div\').parentElement.remove()" style="background:#f5f5f0;border:0.5px solid #d0d0c8;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Cerrar</button></div></div>';
+  document.body.appendChild(o);
+  setTimeout(()=>document.getElementById('link-input').select(),100);
 }
 function cerrarModal(){document.getElementById('modal-alumno').classList.remove('open');alumno=null;}
 function mostrarTab(tab){
