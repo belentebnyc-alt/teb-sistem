@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TEB — Importar pagos</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#f5f5f0;color:#1a1a1a}
+.topbar{background:#004225;color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.topbar h1{font-size:16px;font-weight:500}
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.card{background:white;border-radius:12px;border:0.5px solid #e0e0d8;margin-bottom:20px}
+.card-header{padding:16px 24px;border-bottom:0.5px solid #e0e0d8;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.card-header h2{font-size:14px;font-weight:500}
+.card-body{padding:24px}
+.btn{padding:8px 16px;border-radius:7px;font-size:13px;cursor:pointer;border:0.5px solid #d0d0c8;background:white;color:#1a1a1a}
+.btn:hover{background:#f5f5f0}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:#004225;color:white;border-color:#004225}
+.btn-primary:hover:not(:disabled){background:#003018}
+.btn-success{background:#27500A;color:white;border-color:#27500A}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-danger{background:#FCEBEB;color:#791F1F;border-color:#F7C1C1}
+select,input{padding:6px 10px;border:0.5px solid #d0d0c8;border-radius:6px;font-size:13px;background:white;color:#1a1a1a;outline:none}
+select:focus,input:focus{border-color:#004225}
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.alert-success{background:#EAF3DE;color:#27500A}
+.alert-error{background:#FCEBEB;color:#791F1F}
+.alert-info{background:#E6F1FB;color:#0C447C}
+.alert-warn{background:#FAEEDA;color:#633806}
+.pill{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-green{background:#EAF3DE;color:#27500A}
+.pill-amber{background:#FAEEDA;color:#633806}
+.pill-red{background:#FCEBEB;color:#791F1F}
+.pill-blue{background:#E6F1FB;color:#0C447C}
+.pill-gray{background:#F1EFE8;color:#444}
+
+/* Upload zone */
+.upload-zone{border:2px dashed #d0d0c8;border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;background:#fafaf7}
+.upload-zone:hover,.upload-zone.drag{border-color:#004225;background:#EAF3DE22}
+.upload-zone input[type=file]{display:none}
+.upload-icon{font-size:36px;margin-bottom:12px;color:#888}
+.upload-title{font-size:15px;font-weight:500;color:#444;margin-bottom:6px}
+.upload-sub{font-size:13px;color:#888}
+
+/* Tabla de revisión */
+.review-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.review-table th{background:#f8f8f5;padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#666;border-bottom:0.5px solid #e0e0d8;white-space:nowrap;position:sticky;top:0;z-index:1}
+.review-table td{padding:8px 12px;border-bottom:0.5px solid #f0f0e8;vertical-align:middle}
+.review-table tr.ok td{background:#EAF3DE11}
+.review-table tr.skip td{background:#f8f8f5;opacity:.6}
+.review-table tr.pending td{background:white}
+.review-table tr:hover td{background:#fafaf7}
+
+/* Stats bar */
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.stat{background:white;border-radius:8px;padding:12px 14px;border:0.5px solid #e0e0d8;text-align:center}
+.stat-val{font-size:20px;font-weight:500}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+
+/* Progress */
+.progress-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+.progress-overlay.show{display:flex}
+.progress-box{background:white;border-radius:12px;padding:32px;width:360px;text-align:center}
+.progress-bar-wrap{height:8px;background:#e0e0d8;border-radius:99px;overflow:hidden;margin:16px 0}
+.progress-bar-fill{height:100%;background:#004225;border-radius:99px;transition:width .3s}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>TEB — Importar pagos desde INGRESOS</h1>
+  <a href="panel_teb_v4.html" style="color:white;font-size:13px;opacity:.8;text-decoration:none">← Volver al panel</a>
+</div>
+
+<div class="container">
+  <div id="alert-global"></div>
+
+  <!-- PASO 1: SUBIR CSV -->
+  <div id="paso-upload">
+    <div class="card">
+      <div class="card-header"><h2>Paso 1 — Subí el CSV de la hoja INGRESOS</h2></div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          En Excel: hacé clic en la hoja <b>INGRESOS</b> → Archivo → Guardar como → <b>CSV UTF-8 (delimitado por comas)</b>. Después subí ese archivo acá.
+        </div>
+        <label class="upload-zone" id="upload-zone">
+          <input type="file" id="file-input" accept=".csv" onchange="procesarCSV(this)">
+          <div class="upload-icon">📄</div>
+          <div class="upload-title">Hacé clic o arrastrá el archivo CSV acá</div>
+          <div class="upload-sub">Solo archivos .csv — exportados desde la hoja INGRESOS</div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 2: REVISAR Y CONFIRMAR -->
+  <div id="paso-review" style="display:none">
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Filas totales</div></div>
+      <div class="stat"><div class="stat-val" style="color:#27500A" id="s-ok">0</div><div class="stat-lbl">Alumno encontrado</div></div>
+      <div class="stat"><div class="stat-val" style="color:#633806" id="s-manual">0</div><div class="stat-lbl">A asignar manualmente</div></div>
+      <div class="stat"><div class="stat-val" style="color:#888" id="s-skip">0</div><div class="stat-lbl">Omitidos</div></div>
+      <div class="stat"><div class="stat-val green" id="s-usd">USD 0</div><div class="stat-lbl">Total a importar</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Paso 2 — Revisá y confirmá cada pago</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sm" onclick="filtrarVista('todos')">Todos</button>
+          <button class="btn btn-sm" onclick="filtrarVista('manual')">Solo sin asignar</button>
+          <button class="btn btn-sm" onclick="filtrarVista('ok')">Solo encontrados</button>
+          <button class="btn btn-success" onclick="importarTodo()" id="btn-importar">Importar seleccionados</button>
+        </div>
+      </div>
+      <div style="max-height:60vh;overflow-y:auto">
+        <table class="review-table">
+          <thead>
+            <tr>
+              <th style="width:32px"><input type="checkbox" id="check-all" onchange="toggleAll(this)"></th>
+              <th>Nombre en CSV</th>
+              <th>Alumno asignado</th>
+              <th>Fecha</th>
+              <th>Monto USD</th>
+              <th>Monto ARS</th>
+              <th>Método</th>
+              <th>Cuota</th>
+              <th>Quién</th>
+              <th>Realizado</th>
+              <th>Omitir</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-review"></tbody>
+        </table>
+      </div>
+      <div style="padding:12px 20px;border-top:0.5px solid #e0e0d8;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;color:#888" id="footer-count">—</span>
+        <button class="btn btn-success btn-lg" onclick="importarTodo()" id="btn-importar2">Importar pagos seleccionados</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress overlay -->
+<div class="progress-overlay" id="progress-overlay">
+  <div class="progress-box">
+    <div style="font-size:15px;font-weight:500;margin-bottom:8px">Importando pagos...</div>
+    <div style="font-size:13px;color:#888" id="progress-text">Procesando...</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    <div style="font-size:13px;color:#666" id="progress-count">0 / 0</div>
+  </div>
+</div>
+
+<script>
+const SURL='https://sjlaccqognqxubjeweah.supabase.co';
+const SKEY='sb_publishable_C5hjAFL3IHUfkbS-sug89g_Hu3MjmDP';
+const {createClient}=supabase;
+const db=createClient(SURL,SKEY);
+
+let ALUMNOS=[];
+let FILAS=[];
+let vistaActual='todos';
+
+async function init(){
+  const {data}=await db.from('alumnos').select('id,nombre').order('nombre');
+  ALUMNOS=data||[];
+}
+
+function normalizar(s){
+  if(!s)return'';
+  return s.toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9 ]/g,'').trim();
+}
+
+function similitud(a,b){
+  a=normalizar(a);b=normalizar(b);
+  if(a===b)return 1;
+  if(a.includes(b)||b.includes(a))return .9;
+  const wa=new Set(a.split(' '));
+  const wb=new Set(b.split(' '));
+  const inter=[...wa].filter(x=>wb.has(x)).length;
+  const union=new Set([...wa,...wb]).size;
+  return inter/union;
+}
+
+function buscarAlumno(nombre){
+  let mejor=null,mejorScore=0;
+  ALUMNOS.forEach(a=>{
+    const s=similitud(nombre,a.nombre);
+    if(s>mejorScore){mejorScore=s;mejor=a;}
+  });
+  return mejorScore>=0.5?mejor:null;
+}
+
+function limpiarMonto(v){
+  if(!v||v===''||v===undefined)return 0;
+  const n=parseFloat(String(v).replace(/[^0-9.\-]/g,''));
+  return isNaN(n)?0:Math.abs(n);
+}
+
+function parsearFecha(v){
+  if(!v)return null;
+  try{
+    const d=new Date(v);
+    if(isNaN(d))return null;
+    return d.toISOString().split('T')[0];
+  }catch{return null;}
+}
+
+function procesarCSV(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    parsearYMostrar(text);
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function parsearYMostrar(text){
+  const lineas=text.split('\n').filter(l=>l.trim());
+  // Detectar header — la primera línea que tenga "FECHA" o "fecha"
+  let startIdx=0;
+  for(let i=0;i<Math.min(5,lineas.length);i++){
+    if(lineas[i].toLowerCase().includes('fecha')||lineas[i].toLowerCase().includes('edicion')){
+      startIdx=i+1;break;
+    }
+  }
+
+  FILAS=[];
+  for(let i=startIdx;i<lineas.length;i++){
+    const cols=lineas[i].split(',');
+    const alumnoNom=(cols[0]||'').replace(/"/g,'').trim();
+    if(!alumnoNom||alumnoNom.length<3)continue;
+    const fecha=parsearFecha((cols[2]||'').replace(/"/g,'').trim());
+    const metodoRaw=(cols[3]||'').replace(/"/g,'').trim().toUpperCase();
+    const quien=(cols[4]||'').replace(/"/g,'').trim();
+    const cuotaRaw=(cols[5]||'').replace(/"/g,'').trim();
+    const montoUSD=limpiarMonto((cols[6]||'').replace(/"/g,''));
+    const montoARS=limpiarMonto((cols[7]||'').replace(/"/g,''));
+    const realizado=(cols[14]||'').replace(/"/g,'').trim().toUpperCase()==='REALIZADO';
+
+    if(!montoUSD&&!montoARS)continue;
+
+    let metodo='Otro';
+    if(metodoRaw.includes('STRIPE'))metodo='Stripe';
+    else if(metodoRaw.includes('TRANSFER'))metodo='Transferencia';
+    else if(metodoRaw.includes('CASH')||metodoRaw.includes('EFECTIVO'))metodo='Efectivo';
+    else if(metodoRaw.includes('BOFA'))metodo='BOFA';
+    else if(metodoRaw.includes('MERCADO'))metodo='MercadoPago';
+
+    let cuota=null;
+    if(cuotaRaw&&!isNaN(parseInt(cuotaRaw)))cuota=parseInt(cuotaRaw);
+
+    const alumnoEncontrado=buscarAlumno(alumnoNom);
+
+    FILAS.push({
+      idx:FILAS.length,
+      alumnoNom,
+      alumnoId:alumnoEncontrado?alumnoEncontrado.id:null,
+      alumnoNomSistema:alumnoEncontrado?alumnoEncontrado.nombre:null,
+      fecha,metodo,quien,cuota,
+      montoUSD,montoARS,realizado,
+      skip:false,
+      seleccionado:!!alumnoEncontrado,
+    });
+  }
+
+  document.getElementById('paso-upload').style.display='none';
+  document.getElementById('paso-review').style.display='block';
+  actualizarStats();
+  renderTabla('todos');
+}
+
+function actualizarStats(){
+  const total=FILAS.length;
+  const ok=FILAS.filter(f=>f.alumnoId&&!f.skip).length;
+  const manual=FILAS.filter(f=>!f.alumnoId&&!f.skip).length;
+  const skip=FILAS.filter(f=>f.skip).length;
+  const usd=FILAS.filter(f=>f.seleccionado&&!f.skip).reduce((s,f)=>s+f.montoUSD,0);
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-ok').textContent=ok;
+  document.getElementById('s-manual').textContent=manual;
+  document.getElementById('s-skip').textContent=skip;
+  document.getElementById('s-usd').textContent='USD '+Math.round(usd).toLocaleString('es-AR');
+  const sel=FILAS.filter(f=>f.seleccionado&&!f.skip).length;
+  document.getElementById('footer-count').textContent=sel+' pagos seleccionados para importar';
+}
+
+function renderTabla(vista){
+  vistaActual=vista;
+  let lista=FILAS;
+  if(vista==='manual')lista=FILAS.filter(f=>!f.alumnoId&&!f.skip);
+  if(vista==='ok')lista=FILAS.filter(f=>f.alumnoId&&!f.skip);
+
+  const tbody=document.getElementById('tabla-review');
+  tbody.innerHTML='';
+
+  lista.forEach(f=>{
+    const tr=document.createElement('tr');
+    tr.className=f.skip?'skip':f.alumnoId?'ok':'pending';
+    tr.id='row-'+f.idx;
+
+    // Selector de alumno
+    let selectorOpts='<option value="">— Sin asignar —</option>';
+    ALUMNOS.forEach(a=>{
+      selectorOpts+='<option value="'+a.id+'"'+(f.alumnoId===a.id?' selected':'')+'>'+a.nombre+'</option>';
+    });
+
+    tr.innerHTML=`
+      <td><input type="checkbox" ${f.seleccionado&&!f.skip?'checked':''} onchange="toggleFila(${f.idx},this.checked)"></td>
+      <td style="max-width:160px;font-size:12px">
+        <div style="font-weight:500">${f.alumnoNom}</div>
+        ${f.alumnoNomSistema&&f.alumnoNomSistema!==f.alumnoNom?'<div style="font-size:11px;color:#888">→ '+f.alumnoNomSistema+'</div>':''}
+      </td>
+      <td style="min-width:180px">
+        <select style="width:100%;font-size:12px" onchange="asignarAlumno(${f.idx},this.value)">${selectorOpts}</select>
+      </td>
+      <td style="font-size:12px;color:#666">${f.fecha||'—'}</td>
+      <td style="font-weight:500;color:${f.montoUSD>0?'#27500A':'#888'}">${f.montoUSD>0?'USD '+f.montoUSD.toLocaleString('es-AR'):'—'}</td>
+      <td style="font-size:12px;color:#633806">${f.montoARS>0?'$ '+Math.round(f.montoARS).toLocaleString('es-AR'):'—'}</td>
+      <td><span class="pill pill-${f.metodo==='Stripe'?'blue':f.metodo==='Transferencia'?'green':'gray'}">${f.metodo}</span></td>
+      <td style="font-size:12px;color:#888">${f.cuota||'—'}</td>
+      <td style="font-size:12px;color:#888">${f.quien||'—'}</td>
+      <td>${f.realizado?'<span class="pill pill-green">✓</span>':'<span class="pill pill-gray">—</span>'}</td>
+      <td><button class="btn btn-sm ${f.skip?'btn-primary':'btn-danger'}" onclick="toggleSkip(${f.idx})">${f.skip?'Restaurar':'Omitir'}</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filtrarVista(v){renderTabla(v);}
+
+function toggleFila(idx,checked){
+  FILAS[idx].seleccionado=checked;
+  actualizarStats();
+}
+
+function toggleAll(cb){
+  const lista=vistaActual==='todos'?FILAS:vistaActual==='manual'?FILAS.filter(f=>!f.alumnoId&&!f.skip):FILAS.filter(f=>f.alumnoId&&!f.skip);
+  lista.forEach(f=>{f.seleccionado=cb.checked;});
+  renderTabla(vistaActual);
+  actualizarStats();
+}
+
+function asignarAlumno(idx,alumnoId){
+  const al=ALUMNOS.find(a=>a.id===alumnoId);
+  FILAS[idx].alumnoId=alumnoId||null;
+  FILAS[idx].alumnoNomSistema=al?al.nombre:null;
+  FILAS[idx].seleccionado=!!alumnoId;
+  const tr=document.getElementById('row-'+idx);
+  if(tr)tr.className=FILAS[idx].skip?'skip':alumnoId?'ok':'pending';
+  actualizarStats();
+}
+
+function toggleSkip(idx){
+  FILAS[idx].skip=!FILAS[idx].skip;
+  if(FILAS[idx].skip)FILAS[idx].seleccionado=false;
+  renderTabla(vistaActual);
+  actualizarStats();
+}
+
+async function importarTodo(){
+  const aImportar=FILAS.filter(f=>f.seleccionado&&!f.skip&&f.alumnoId&&f.montoUSD>0);
+  if(!aImportar.length){
+    document.getElementById('alert-global').innerHTML='<div class="alert alert-warn">No hay pagos seleccionados para importar. Asegurate de que tengan alumno asignado y monto USD.</div>';
+    window.scrollTo({top:0,behavior:'smooth'});
+    return;
+  }
+
+  const overlay=document.getElementById('progress-overlay');
+  overlay.classList.add('show');
+  const fill=document.getElementById('progress-fill');
+  const txt=document.getElementById('progress-text');
+  const cnt=document.getElementById('progress-count');
+
+  let ok=0,errores=0;
+  // Agrupar actualizaciones de total_abonado por alumno
+  const abonadoPorAlumno={};
+
+  for(let i=0;i<aImportar.length;i++){
+    const f=aImportar[i];
+    fill.style.width=Math.round(((i+1)/aImportar.length)*100)+'%';
+    cnt.textContent=(i+1)+' / '+aImportar.length;
+    txt.textContent='Importando: '+f.alumnoNom.substring(0,40)+'...';
+
+    const notas=f.montoARS>0?'Pago en ARS: $ '+Math.round(f.montoARS).toLocaleString('es-AR'):null;
+
+    const {error}=await db.from('pagos').insert({
+      alumno_id:f.alumnoId,
+      fecha:f.fecha,
+      monto:f.montoUSD,
+      metodo:f.metodo,
+      cuota:f.cuota,
+      quien_recibio:f.quien||null,
+      notas,
+    });
+
+    if(!error){
+      ok++;
+      abonadoPorAlumno[f.alumnoId]=(abonadoPorAlumno[f.alumnoId]||0)+f.montoUSD;
+    } else {
+      errores++;
+    }
+
+    // Pequeña pausa para no saturar
+    if(i%20===0)await new Promise(r=>setTimeout(r,100));
+  }
+
+  // Actualizar total_abonado y fecha_ultimo_pago en cada alumno
+  txt.textContent='Actualizando saldos de alumnos...';
+  const alumnosAfectados=Object.keys(abonadoPorAlumno);
+  for(let i=0;i<alumnosAfectados.length;i++){
+    const aid=alumnosAfectados[i];
+    const al=ALUMNOS.find(a=>a.id===aid);
+    // Obtener pagos del alumno para calcular total y ultima fecha
+    const {data:pagos}=await db.from('pagos').select('monto,fecha').eq('alumno_id',aid).order('fecha',{ascending:false});
+    if(pagos&&pagos.length){
+      const totalAbonado=pagos.reduce((s,p)=>s+(p.monto||0),0);
+      const ultimaFecha=pagos[0].fecha;
+      await db.from('alumnos').update({total_abonado:totalAbonado,fecha_ultimo_pago:ultimaFecha}).eq('id',aid);
+    }
+  }
+
+  overlay.classList.remove('show');
+
+  let msg='<div class="alert alert-success">✓ Se importaron <b>'+ok+' pagos</b> correctamente.';
+  if(errores>0)msg+=' <b>'+errores+' fallaron</b> — revisá la consola para detalles.';
+  msg+=' <a href="panel_teb_v4.html" style="color:#27500A;font-weight:500">Ir al panel →</a></div>';
+  document.getElementById('alert-global').innerHTML=msg;
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  // Marcar como importados
+  aImportar.forEach(f=>{f.skip=true;f.seleccionado=false;});
+  renderTabla(vistaActual);
+  actualizarStats();
+}
+
+// Drag and drop
+const zone=document.getElementById('upload-zone');
+zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag');});
+zone.addEventListener('dragleave',()=>zone.classList.remove('drag'));
+zone.addEventListener('drop',e=>{
+  e.preventDefault();zone.classList.remove('drag');
+  const file=e.dataTransfer.files[0];
+  if(file&&file.name.endsWith('.csv')){
+    const reader=new FileReader();
+    reader.onload=ev=>parsearYMostrar(ev.target.result);
+    reader.readAsText(file,'UTF-8');
+  }
+});
+
+init();
+</script>
+</body>
+</html>
