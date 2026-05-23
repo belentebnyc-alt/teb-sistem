@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TEB NYC — Mi portal</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
+.topbar{background:#004225;color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-brand .logo{font-size:18px;font-weight:700;letter-spacing:-.5px}
+.topbar-brand .sub{font-size:11px;opacity:.7}
+.topbar-alumno{font-size:13px;opacity:.8}
+.container{max-width:860px;margin:0 auto;padding:24px}
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;color:#888}
+.loading-screen .spinner{width:32px;height:32px;border:3px solid #e0e0d8;border-top-color:#004225;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-screen{text-align:center;padding:60px 20px}
+.error-screen h2{font-size:18px;color:#791F1F;margin-bottom:8px}
+.error-screen p{font-size:14px;color:#888}
+
+/* Bienvenida */
+.welcome-card{background:linear-gradient(135deg,#004225 0%,#2E7D32 100%);color:white;border-radius:14px;padding:24px;margin-bottom:20px}
+.welcome-nombre{font-size:22px;font-weight:500;margin-bottom:4px}
+.welcome-sub{font-size:13px;opacity:.8;margin-bottom:16px}
+.welcome-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.welcome-stat{background:rgba(255,255,255,.12);border-radius:10px;padding:12px 14px}
+.welcome-stat .lbl{font-size:11px;opacity:.7;margin-bottom:4px}
+.welcome-stat .val{font-size:18px;font-weight:600}
+.welcome-stat .val.warn{color:#FAC775}
+.welcome-stat .val.ok{color:#A5D6A7}
+
+/* Cards */
+.card{background:white;border-radius:12px;border:0.5px solid #e0e0d8;margin-bottom:16px;overflow:hidden}
+.card-header{padding:14px 20px;border-bottom:0.5px solid #e0e0d8;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-header h2{font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px}
+.card-header h2 .icon{font-size:16px}
+.card-body{padding:20px}
+
+/* Progreso */
+.progress-wrap{margin:12px 0 6px}
+.progress-bar{height:8px;background:#e0e0d8;border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;background:#004225;transition:width .5s}
+.progress-labels{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:4px}
+
+/* Filas de info */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid #f5f5f0;font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-row .lbl{color:#888}
+.info-row .val{font-weight:500;text-align:right}
+.info-row.total{font-weight:600;font-size:14px;padding-top:10px;border-top:1px solid #e0e0d8;margin-top:4px;border-bottom:none}
+.info-row.total .val{color:#004225;font-size:16px}
+
+/* Pagos */
+.pago-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid #f5f5f0;font-size:13px}
+.pago-item:last-child{border-bottom:none}
+.pago-left{}
+.pago-fecha{color:#888;font-size:12px}
+.pago-meta{font-size:11px;color:#aaa;margin-top:1px}
+.pago-monto{font-weight:600;color:#004225}
+
+/* Plan cuotas */
+.cuota-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid #f5f5f0;font-size:13px}
+.cuota-item:last-child{border-bottom:none}
+.cuota-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.cuota-num.pagada{background:#EAF3DE;color:#27500A}
+.cuota-num.proxima{background:#FAEEDA;color:#854F0B}
+.cuota-num.pendiente{background:#f5f5f0;color:#888}
+.cuota-info{flex:1}
+.cuota-mes{font-weight:500}
+.cuota-vence{font-size:11px;color:#888}
+.cuota-monto{font-weight:600}
+.cuota-monto.pagada{color:#27500A}
+.cuota-monto.proxima{color:#854F0B}
+.cuota-monto.pendiente{color:#888}
+
+/* Pills */
+.pill{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-green{background:#EAF3DE;color:#27500A}
+.pill-amber{background:#FAEEDA;color:#633806}
+.pill-red{background:#FCEBEB;color:#791F1F}
+.pill-blue{background:#E6F1FB;color:#0C447C}
+.pill-gray{background:#F1EFE8;color:#444}
+.pill-purple{background:#EEEDFE;color:#3C3489}
+
+/* Visa */
+.visa-form{background:#f8f8f5;border-radius:10px;padding:16px;margin-top:12px}
+.visa-form h4{font-size:13px;font-weight:500;margin-bottom:12px;color:#333}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;color:#555;margin-bottom:4px;font-weight:500}
+.form-group select,.form-group input,.form-group textarea{width:100%;padding:9px 12px;border:0.5px solid #d0d0c8;border-radius:7px;font-size:13px;color:#1a1a1a;background:white;outline:none}
+.form-group select:focus,.form-group input:focus,.form-group textarea:focus{border-color:#004225;box-shadow:0 0 0 2px #00422510}
+.form-group textarea{height:70px;resize:vertical}
+.btn{padding:9px 18px;border-radius:7px;font-size:13px;cursor:pointer;border:0.5px solid #d0d0c8;background:white;color:#1a1a1a;font-weight:400}
+.btn-primary{background:#004225;color:white;border-color:#004225;font-weight:500}
+.btn-primary:hover{background:#003018}
+.btn-sm{padding:5px 12px;font-size:12px}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:10px}
+.alert-success{background:#EAF3DE;color:#27500A}
+.alert-error{background:#FCEBEB;color:#791F1F}
+.alert-info{background:#E6F1FB;color:#0C447C}
+
+/* Viaje */
+.viaje-box{background:linear-gradient(135deg,#E6F1FB 0%,#EAF3DE 100%);border-radius:10px;padding:16px;border:0.5px solid #B5D4F4}
+.viaje-row{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px}
+.viaje-lbl{color:#888;width:100px;flex-shrink:0;font-size:12px}
+.viaje-val{font-weight:500}
+.countdown{text-align:center;padding:14px;background:white;border-radius:8px;margin-top:12px;border:0.5px solid #e0e0d8}
+.countdown-num{font-size:36px;font-weight:700;color:#004225}
+.countdown-lbl{font-size:12px;color:#888;margin-top:2px}
+
+/* Contrato */
+.contrato-box{display:flex;align-items:center;justify-content:space-between;padding:14px;background:#f8f8f5;border-radius:10px;border:0.5px solid #e0e0d8}
+.contrato-info h4{font-size:13px;font-weight:500;margin-bottom:3px}
+.contrato-info p{font-size:12px;color:#888}
+
+/* WhatsApp flotante */
+.wa-float{position:fixed;bottom:24px;right:24px;background:#25D366;color:white;border-radius:50px;padding:12px 20px;font-size:13px;font-weight:500;text-decoration:none;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(37,211,102,.4);z-index:100}
+.wa-float:hover{background:#1da851;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div>
+      <div class="logo">TEB NYC</div>
+      <div class="sub">Broadway New York City</div>
+    </div>
+  </div>
+  <div class="topbar-alumno" id="topbar-nombre">Mi portal</div>
+</div>
+
+<div class="container">
+  <div id="loading-screen" class="loading-screen">
+    <div class="spinner"></div>
+    <div>Cargando tu portal...</div>
+  </div>
+
+  <div id="error-screen" class="error-screen" style="display:none">
+    <h2>Link no válido</h2>
+    <p>Este link no corresponde a ningún alumno.<br>Contactá al equipo de TEB NYC para obtener tu link personalizado.</p>
+  </div>
+
+  <div id="portal-content" style="display:none">
+
+    <!-- BIENVENIDA -->
+    <div class="welcome-card">
+      <div class="welcome-nombre" id="w-nombre">—</div>
+      <div class="welcome-sub" id="w-sub">—</div>
+      <div class="welcome-stats">
+        <div class="welcome-stat">
+          <div class="lbl">Total abonado</div>
+          <div class="val ok" id="w-abonado">—</div>
+        </div>
+        <div class="welcome-stat">
+          <div class="lbl">Saldo pendiente</div>
+          <div class="val warn" id="w-pendiente">—</div>
+        </div>
+        <div class="welcome-stat">
+          <div class="lbl">Días para el viaje</div>
+          <div class="val" id="w-dias">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTADO DE CUENTA -->
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">💳</span> Estado de cuenta</h2>
+        <span class="pill pill-green" id="estado-badge">Al día</span>
+      </div>
+      <div class="card-body">
+        <div id="estado-cuenta-contenido"></div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+          <div class="progress-labels"><span id="prog-lbl-left">USD 0 abonado</span><span id="prog-lbl-right">USD 0 total</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAN DE PAGOS -->
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">📅</span> Plan de pagos</h2>
+      </div>
+      <div class="card-body">
+        <div id="plan-pagos-contenido"><div style="color:#aaa;font-size:13px">No hay plan de pagos registrado.</div></div>
+      </div>
+    </div>
+
+    <!-- HISTORIAL DE PAGOS -->
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">🧾</span> Mis pagos</h2>
+        <span id="badge-pagos" class="pill pill-gray">0 pagos</span>
+      </div>
+      <div class="card-body">
+        <div id="pagos-contenido"><div style="color:#aaa;font-size:13px">No hay pagos registrados.</div></div>
+      </div>
+    </div>
+
+    <!-- MI VIAJE -->
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">✈️</span> Mi viaje</h2>
+      </div>
+      <div class="card-body">
+        <div id="viaje-contenido"></div>
+      </div>
+    </div>
+
+    <!-- VISA -->
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">🛂</span> Estado de visa</h2>
+        <span id="visa-badge" class="pill pill-gray">—</span>
+      </div>
+      <div class="card-body">
+        <div id="visa-contenido"></div>
+        <div class="visa-form" id="visa-form">
+          <h4>Actualizar estado de mi visa</h4>
+          <div class="form-group">
+            <label>Estado actual</label>
+            <select id="visa-estado">
+              <option value="NO">No iniciada</option>
+              <option value="En tramite">En trámite / Cita sacada</option>
+              <option value="SI">Visa aprobada ✓</option>
+              <option value="Rechazada">Rechazada</option>
+            </select>
+          </div>
+          <div class="form-group" id="visa-fecha-wrap" style="display:none">
+            <label>Fecha de la cita</label>
+            <input type="date" id="visa-fecha-cita">
+          </div>
+          <div class="form-group">
+            <label>Notas adicionales (opcional)</label>
+            <textarea id="visa-notas" placeholder="Ej: Cita para el 15 de marzo en la embajada de EEUU en Buenos Aires..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="actualizarVisa()">Guardar estado de visa</button>
+          <div id="visa-alert"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRATO -->
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon">📄</span> Mi contrato</h2>
+        <span id="contrato-badge" class="pill pill-gray">—</span>
+      </div>
+      <div class="card-body" id="contrato-contenido"></div>
+  <div id="reprog-card" class="card" style="display:none">
+    <div class="card-header">
+      <h2><span class="icon">📋</span> Documento de reprogramación</h2>
+      <span id="reprog-badge" class="pill pill-gray">—</span>
+    </div>
+    <div class="card-body" id="reprog-contenido"></div>
+  </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- WhatsApp flotante -->
+<a href="#" id="wa-link" class="wa-float" target="_blank" style="display:none">
+  💬 Contactar a TEB NYC
+</a>
+
+<script>
+const SURL='https://sjlaccqognqxubjeweah.supabase.co';
+const SKEY='sb_publishable_C5hjAFL3IHUfkbS-sug89g_Hu3MjmDP';
+const {createClient}=supabase;
+const db=createClient(SURL,SKEY);
+
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MESES_M=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const EDICIONES={
+  'Julio 2026':  {inicio:new Date(2026,6,10),  checkin:'10 de julio de 2026 a las 4:00 PM',   checkout:'31 de julio de 2026 a las 12:00 PM'},
+  'Enero 2027':  {inicio:new Date(2027,0,27),  checkin:'27 de enero de 2027 a las 4:00 PM',   checkout:'10 de febrero de 2027 a las 12:00 PM'},
+  'Julio 2027':  {inicio:new Date(2027,6,16),  checkin:'16 de julio de 2027 a las 4:00 PM',   checkout:'30 de julio de 2027 a las 12:00 PM'},
+  'Enero 2028':  {inicio:new Date(2028,0,15),  checkin:'A confirmar', checkout:'A confirmar'},
+};
+
+let alumnoData=null;
+
+function usd(n){return 'USD '+Math.round(n||0).toLocaleString('es-AR');}
+function usd2(n){return 'USD '+Number(n||0).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmt(d){return `${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`;}
+function fmtMes(d){return `${MESES_M[d.getMonth()]} ${d.getFullYear()}`;}
+
+function diasHasta(d){
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  return Math.ceil((d-hoy)/(1000*60*60*24));
+}
+
+function pillVisa(v){
+  const m={'SI':'green','NO':'red','En tramite':'amber','Rechazada':'red'};
+  const txt={'SI':'Visa aprobada ✓','NO':'Sin visa','En tramite':'En trámite','Rechazada':'Rechazada'};
+  return {cls:'pill-'+(m[v]||'gray'), txt:txt[v]||v};
+}
+
+async function init(){
+  // Leer el ID del alumno desde la URL
+  const params=new URLSearchParams(window.location.search);
+  const alumnoId=params.get('id');
+
+  if(!alumnoId){
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('error-screen').style.display='block';
+    return;
+  }
+
+  // Cargar datos del alumno
+  const {data:al,error}=await db.from('alumnos')
+    .select('*,ediciones(nombre,id)')
+    .eq('id',alumnoId)
+    .single();
+
+  if(error||!al){
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('error-screen').style.display='block';
+    return;
+  }
+  alumnoData=al;
+
+  // Cargar pagos
+  const {data:pagos}=await db.from('pagos')
+    .select('*')
+    .eq('alumno_id',alumnoId)
+    .order('fecha',{ascending:false});
+
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('portal-content').style.display='block';
+
+  renderPortal(al, pagos||[]);
+}
+
+function renderPortal(al, pagos){
+  const edNombre=al.ediciones?.nombre||'';
+  const ed=EDICIONES[edNombre];
+  const total=al.total_a_pagar||0;
+  const abonado=al.total_abonado||0;
+  const pendiente=total-abonado;
+  const pct=total>0?Math.min(100,Math.round((abonado/total)*100)):0;
+  const dias=ed?diasHasta(ed.inicio):null;
+
+  // Topbar
+  document.getElementById('topbar-nombre').textContent=al.nombre;
+
+  // WhatsApp
+  if(al.celular){
+    const wa=document.getElementById('wa-link');
+    wa.href='https://'+al.celular;
+    wa.style.display='flex';
+  }
+
+  // ── BIENVENIDA ──────────────────────────────────────────────────────────────
+  document.getElementById('w-nombre').textContent='Hola, '+al.nombre.split(' ')[0]+' 👋';
+  document.getElementById('w-sub').textContent=(al.programa||'—')+' · '+edNombre+(al.plan?' · Plan '+al.plan:'');
+  document.getElementById('w-abonado').textContent=usd(abonado);
+  document.getElementById('w-pendiente').textContent=usd(pendiente);
+  if(dias!==null){
+    document.getElementById('w-dias').textContent=dias>0?dias+'d':'¡Ya es hoy!';
+    document.getElementById('w-dias').className='val '+(dias<=30?'warn':'ok');
+  } else {
+    document.getElementById('w-dias').textContent='—';
+  }
+
+  // ── ESTADO DE CUENTA ────────────────────────────────────────────────────────
+  const estadoBadge=document.getElementById('estado-badge');
+  if(pendiente<=0){estadoBadge.textContent='Pagado ✓';estadoBadge.className='pill pill-green';}
+  else if(pct>=50){estadoBadge.textContent='Al día';estadoBadge.className='pill pill-green';}
+  else{estadoBadge.textContent='Pendiente';estadoBadge.className='pill pill-amber';}
+
+  let ec='';
+  ec+=`<div class="info-row"><span class="lbl">Valor del programa</span><span class="val">${usd2(al.valor_programa)}</span></div>`;
+  if(al.beca>0)ec+=`<div class="info-row"><span class="lbl">Beca / descuento</span><span class="val" style="color:#27500A">- ${usd2(al.beca)}</span></div>`;
+  if(al.upgrade>0)ec+=`<div class="info-row"><span class="lbl">Upgrade de plan</span><span class="val" style="color:#0C447C">+ ${usd2(al.upgrade)}</span></div>`;
+  if(al.costo_reprogramacion>0)ec+=`<div class="info-row"><span class="lbl">Costo de reprogramación</span><span class="val" style="color:#791F1F">+ ${usd2(al.costo_reprogramacion)}</span></div>`;
+  ec+=`<div class="info-row total"><span class="lbl">Total a abonar</span><span class="val">${usd2(total)}</span></div>`;
+  ec+=`<div class="info-row" style="padding-top:10px"><span class="lbl">Total abonado</span><span class="val" style="color:#27500A">${usd2(abonado)}</span></div>`;
+  ec+=`<div class="info-row"><span class="lbl">Saldo pendiente</span><span class="val" style="color:${pendiente>0?'#791F1F':'#27500A'}">${usd2(pendiente)}</span></div>`;
+  document.getElementById('estado-cuenta-contenido').innerHTML=ec;
+
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('prog-lbl-left').textContent=usd(abonado)+' abonado ('+pct+'%)';
+  document.getElementById('prog-lbl-right').textContent=usd(total)+' total';
+
+  // ── PLAN DE PAGOS ────────────────────────────────────────────────────────────
+  if(al.comentario_plan){
+    document.getElementById('plan-pagos-contenido').innerHTML=
+      `<div style="font-size:13px;color:#333;line-height:1.6;padding:8px 0">${al.comentario_plan}</div>`;
+  }
+
+  // ── HISTORIAL DE PAGOS ───────────────────────────────────────────────────────
+  document.getElementById('badge-pagos').textContent=pagos.length+' pago'+(pagos.length!==1?'s':'');
+  if(pagos.length){
+    const totPagado=pagos.reduce((s,p)=>s+(p.monto||0),0);
+    let ph='';
+    pagos.forEach(p=>{
+      ph+=`<div class="pago-item">
+        <div>
+          <div class="pago-fecha">${p.fecha||'—'}${p.cuota?' · Cuota '+p.cuota:''}</div>
+          <div class="pago-meta">${p.metodo||'—'}${p.notas?' · '+p.notas:''}</div>
+        </div>
+        <div class="pago-monto">${usd2(p.monto)}</div>
+      </div>`;
+    });
+    ph+=`<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;border-top:1px solid #e0e0d8;padding-top:10px;margin-top:6px">
+      <span>Total abonado</span><span style="color:#004225">${usd2(totPagado)}</span>
+    </div>`;
+    document.getElementById('pagos-contenido').innerHTML=ph;
+  }
+
+  // ── MI VIAJE ──────────────────────────────────────────────────────────────────
+  let vh='';
+  if(ed){
+    const d=diasHasta(ed.inicio);
+    vh+=`<div class="viaje-box">
+      <div class="viaje-row"><span class="viaje-lbl">Edición</span><span class="viaje-val">${edNombre}</span></div>
+      <div class="viaje-row"><span class="viaje-lbl">Check-in</span><span class="viaje-val">${ed.checkin}</span></div>
+      <div class="viaje-row"><span class="viaje-lbl">Check-out</span><span class="viaje-val">${ed.checkout}</span></div>
+      <div class="viaje-row"><span class="viaje-lbl">Programa</span><span class="viaje-val">${al.programa||'—'}</span></div>
+      <div class="viaje-row"><span class="viaje-lbl">Plan</span><span class="viaje-val">${al.plan||'Economy'}</span></div>
+    </div>`;
+    if(d>0){
+      vh+=`<div class="countdown">
+        <div class="countdown-num">${d}</div>
+        <div class="countdown-lbl">días para el inicio del viaje</div>
+      </div>`;
+    } else if(d===0){
+      vh+=`<div class="countdown"><div class="countdown-num" style="color:#27500A">¡Hoy!</div><div class="countdown-lbl">Es el día del viaje 🎉</div></div>`;
+    }
+  } else {
+    vh='<div style="color:#aaa;font-size:13px">La fecha de tu viaje será confirmada próximamente.</div>';
+  }
+  document.getElementById('viaje-contenido').innerHTML=vh;
+
+  // ── VISA ───────────────────────────────────────────────────────────────────────
+  const vp=pillVisa(al.visa);
+  const visaBadge=document.getElementById('visa-badge');
+  visaBadge.textContent=vp.txt;
+  visaBadge.className='pill '+vp.cls;
+  document.getElementById('visa-estado').value=al.visa||'NO';
+
+  let visaInfo='';
+  if(al.visa==='SI'){
+    visaInfo='<div class="alert alert-success" style="margin-bottom:12px">✓ Tu visa está aprobada. ¡Todo listo de este lado!</div>';
+  } else if(al.visa==='En tramite'){
+    visaInfo='<div class="alert alert-info" style="margin-bottom:12px">Tu visa está en trámite. Podés actualizar el estado acá abajo cuando tengas novedades.</div>';
+  } else if(al.visa==='Rechazada'){
+    visaInfo='<div class="alert alert-error" style="margin-bottom:12px">Tu visa fue rechazada. Contactate con el equipo de TEB NYC para ver las opciones.</div>';
+  } else {
+    visaInfo='<div style="font-size:13px;color:#888;margin-bottom:12px">Aún no iniciaste el trámite de visa. Recordá que es un proceso que puede tomar tiempo — ¡no lo dejes para último momento!</div>';
+  }
+  document.getElementById('visa-contenido').innerHTML=visaInfo;
+
+  // Mostrar campo fecha si es "en trámite"
+  document.getElementById('visa-estado').addEventListener('change',function(){
+    document.getElementById('visa-fecha-wrap').style.display=this.value==='En tramite'?'block':'none';
+  });
+  if(al.visa==='En tramite')document.getElementById('visa-fecha-wrap').style.display='block';
+
+  // ── CONTRATO ───────────────────────────────────────────────────────────────────
+  const contBadge=document.getElementById('contrato-badge');
+  const contEstado=al.contrato||'Pendiente';
+  contBadge.textContent=contEstado;
+  contBadge.className='pill '+(contEstado==='Firmado'?'pill-green':contEstado==='Enviado'?'pill-amber':'pill-gray');
+
+  let contH='';
+  if(contEstado==='Firmado'){
+    contH='<div class="contrato-box"><div class="contrato-info"><h4>Contrato firmado ✓</h4><p>Tu contrato fue firmado correctamente.</p></div><span class="pill pill-green">Firmado</span></div>';
+    if(al.contrato_url){
+      contH+='<div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#EAF3DE;border-radius:8px;border:0.5px solid #C0DD97">';
+      contH+='<div><div style="font-size:13px;font-weight:500;color:#27500A">📄 Tu contrato firmado</div>';
+      contH+='<div style="font-size:12px;color:#888;margin-top:2px">Hacé clic para ver o descargar</div></div>';
+      contH+='<a href="'+al.contrato_url+'" target="_blank" class="btn btn-primary btn-sm">Ver PDF</a></div>';
+    }
+  } else if(contEstado==='Enviado'){
+    contH='<div class="contrato-box"><div class="contrato-info"><h4>Contrato enviado</h4><p>Te enviamos el contrato para que lo firmes. Si no lo recibiste contactá al equipo de TEB NYC.</p></div><span class="pill pill-amber">Pendiente firma</span></div>';
+  } else {
+    contH='<div class="contrato-box"><div class="contrato-info"><h4>Contrato pendiente</h4><p>Tu contrato aún no fue enviado. El equipo de TEB NYC te lo enviará próximamente.</p></div><span class="pill pill-gray">Pendiente</span></div>';
+  }
+  document.getElementById('contrato-contenido').innerHTML=contH;
+
+  // ── DOC REPROGRAMACIÓN ──────────────────────────────────────────────────────
+  if(al.reprog_url||al.reprogramacion_estado&&al.reprogramacion_estado!=='No'){
+    document.getElementById('reprog-card').style.display='block';
+    const repBadge=document.getElementById('reprog-badge');
+    const repEstado=al.doc_reprogramacion||'Pendiente';
+    repBadge.textContent=repEstado;
+    repBadge.className='pill '+(repEstado==='Firmado'?'pill-green':repEstado==='Enviado'?'pill-amber':'pill-gray');
+    let repH='';
+    if(al.reprog_url){
+      repH='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#FAEEDA;border-radius:8px;border:0.5px solid #FAC775">';
+      repH+='<div><div style="font-size:13px;font-weight:500;color:#633806">📋 Documento de reprogramación</div>';
+      repH+='<div style="font-size:12px;color:#888;margin-top:2px">'+repEstado+'</div></div>';
+      repH+='<a href="'+al.reprog_url+'" target="_blank" class="btn btn-sm" style="background:#FAEEDA;border-color:#FAC775;color:#633806">Ver PDF</a></div>';
+    } else {
+      repH='<div style="font-size:13px;color:#888">El documento de reprogramación fue registrado pero aún no está disponible para descarga.</div>';
+    }
+    document.getElementById('reprog-contenido').innerHTML=repH;
+  }
+}
+
+async function actualizarVisa(){
+  const estado=document.getElementById('visa-estado').value;
+  const notas=document.getElementById('visa-notas').value;
+  const fechaCita=document.getElementById('visa-fecha-cita').value;
+  const alertEl=document.getElementById('visa-alert');
+
+  const updates={visa:estado};
+  let comentarioExtra='';
+  if(notas)comentarioExtra+=notas;
+  if(fechaCita)comentarioExtra+=(comentarioExtra?' · ':'')+'Cita de visa: '+fechaCita;
+
+  if(comentarioExtra){
+    const fecha=new Date().toLocaleDateString('es-AR');
+    const comentarioActual=alumnoData.comentario||'';
+    updates.comentario=comentarioActual+'\n\n['+fecha+' - Alumno]: Visa: '+estado+(comentarioExtra?' · '+comentarioExtra:'');
+  }
+
+  const {error}=await db.from('alumnos').update(updates).eq('id',alumnoData.id);
+  if(error){
+    alertEl.innerHTML='<div class="alert alert-error">Error al guardar. Intentá de nuevo.</div>';
+    return;
+  }
+
+  alumnoData.visa=estado;
+  const vp=pillVisa(estado);
+  const visaBadge=document.getElementById('visa-badge');
+  visaBadge.textContent=vp.txt;
+  visaBadge.className='pill '+vp.cls;
+
+  alertEl.innerHTML='<div class="alert alert-success">✓ Estado de visa actualizado correctamente. El equipo de TEB NYC fue notificado.</div>';
+  document.getElementById('visa-notas').value='';
+
+  // Actualizar info visual
+  let visaInfo='';
+  if(estado==='SI') visaInfo='<div class="alert alert-success" style="margin-bottom:12px">✓ Tu visa está aprobada. ¡Todo listo de este lado!</div>';
+  else if(estado==='En tramite') visaInfo='<div class="alert alert-info" style="margin-bottom:12px">Tu visa está en trámite. Podés actualizar el estado acá abajo cuando tengas novedades.</div>';
+  else if(estado==='Rechazada') visaInfo='<div class="alert alert-error" style="margin-bottom:12px">Tu visa fue rechazada. Contactate con el equipo de TEB NYC para ver las opciones.</div>';
+  else visaInfo='<div style="font-size:13px;color:#888;margin-bottom:12px">Aún no iniciaste el trámite de visa.</div>';
+  document.getElementById('visa-contenido').innerHTML=visaInfo;
+}
+
+init();
+</script>
+</body>
+</html>
