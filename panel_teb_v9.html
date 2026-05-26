@@ -371,7 +371,7 @@ function renderAlumnos(lista){
     h+='<td>'+pEstado(a.estado_operativo)+'</td>';
     h+='<td>'+estadoFinanciero(a.total_abonado,a.total_a_pagar,diasDesde(a.fecha_ultimo_pago))+'</td>';
     h+='<td>'+(a.celular?'<a class="wa-link" href="https://'+a.celular+'" target="_blank">↗</a>':'—')+'</td>';
-    h+='<td><button class="btn btn-sm" style="font-size:11px;padding:3px 8px;background:#E6F1FB;border-color:#B5D4F4;color:#0C447C" onclick="mostrarDialog(window.location.href.split(\'panel_teb_v5.html\')[0]+\'portal_alumno.html?id='+a.id+'\')" >🔗 Link</button></td>';
+    h+='<td><button class="btn btn-sm" style="font-size:11px;padding:3px 8px;background:#E6F1FB;border-color:#B5D4F4;color:#0C447C" onclick="mostrarDialog(window.location.href.split(\'panel_teb_v5.html\')[0]+\'portal_alumno_v2.html?id='+a.id+'\')" >🔗 Link</button></td>';
     h+='</tr>';
   });
   h+='</tbody></table></div><div style="padding:8px 14px;font-size:12px;color:#888;border-top:0.5px solid #f0f0e8">'+lista.length+' alumnos</div>';
@@ -873,7 +873,7 @@ async function verCuenta(id){
 
 function copiarLink(alumnoId){
   const base=window.location.href.split('panel_teb_v5.html')[0];
-  const link=base+'portal_alumno.html?id='+alumnoId;
+  const link=base+'portal_alumno_v2.html?id='+alumnoId;
   function hacerCopia(){
     const ta=document.createElement('textarea');
     ta.value=link;ta.style.cssText='position:fixed;left:-9999px;top:0';
