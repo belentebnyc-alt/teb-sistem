@@ -872,8 +872,8 @@ async function verCuenta(id){
 }
 
 function copiarLink(alumnoId){
-  const base=window.location.href.split('panel_teb_v5.html')[0];
-  const link=base+'portal_alumno_v2.html?id='+alumnoId;
+  const base=window.location.origin+'/';
+const link=base+'portal_alumno_v2.html?id='+alumnoId;
   function hacerCopia(){
     const ta=document.createElement('textarea');
     ta.value=link;ta.style.cssText='position:fixed;left:-9999px;top:0';
