@@ -225,11 +225,22 @@ def generar_pdf(datos):
     st.append(alt)
     st.append(Spacer(1, 4*mm))
 
-    st.append(Paragraph('Medios de pago aceptados', E['sec']))
-    mt = Table([[Paragraph('Stripe (tarjeta)', E['nor']), Paragraph('Transferencia bancaria', E['nor']), Paragraph('MercadoPago', E['nor']), Paragraph('BOFA / Wire transfer', E['nor'])]], colWidths=[W/4]*4)
+    metodos_pago = datos.get("metodos_pago", [
+        "Transferencia en pesos (sujeto al valor del dolar en el momento de cada pago)",
+        "Transferencia en dolares",
+        "Transferencia internacional a Bank of America",
+        "Tarjeta de credito o debito",
+        "Efectivo",
+    ])
+    if not metodos_pago:
+        metodos_pago = ["A coordinar con el equipo de TEB NYC"]
+    st.append(Paragraph("Medios de pago aceptados", E["sec"]))
+    metodo_style = ParagraphStyle("met", fontName="Helvetica", fontSize=9.5, textColor=colors.HexColor("#333333"), leading=13)
+    filas_metodos = [[Paragraph("•  " + m, metodo_style)] for m in metodos_pago]
+    mt = Table(filas_metodos, colWidths=[W])
     mt.setStyle(TableStyle([
-        ('BACKGROUND',(0,0),(-1,-1),G_CLA),('TOPPADDING',(0,0),(-1,-1),8),('BOTTOMPADDING',(0,0),(-1,-1),8),
-        ('LEFTPADDING',(0,0),(-1,-1),10),('INNERGRID',(0,0),(-1,-1),0.3,G_LIN),('BOX',(0,0),(-1,-1),0.5,G_LIN),('ALIGN',(0,0),(-1,-1),'CENTER'),
+        ("BACKGROUND",(0,0),(-1,-1),G_CLA),("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6),
+        ("LEFTPADDING",(0,0),(-1,-1),14),("INNERGRID",(0,0),(-1,-1),0.3,colors.white),("BOX",(0,0),(-1,-1),0.5,G_LIN),
     ]))
     st.append(mt)
 
@@ -281,3 +292,4 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
+
