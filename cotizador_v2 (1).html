@@ -259,7 +259,7 @@ let planSeleccionado='Economy';
 const METODOS_DISPONIBLES=[
   {id:'pesos',  label:'Transferencia en pesos', desc:'Sujeto al valor del dólar en el momento de cada pago', icono:'💱', texto:'Transferencia en pesos (sujeto al valor del dolar en el momento de cada pago)'},
   {id:'dolares',label:'Transferencia en dólares', desc:'', icono:'💵', texto:'Transferencia en dolares'},
-  {id:'bofa',   label:'Transferencia internacional a Bank of America', desc:'', icono:'🏛️', texto:'Transferencia internacional a Bank of America'},
+  {id:'bofa',   label:'Transferencia internacional a Bank of America', desc:'', icono:'🏦', texto:'Transferencia internacional a Bank of America'},
   {id:'tarjeta',label:'Tarjeta de crédito o débito', desc:'', icono:'💳', texto:'Tarjeta de credito o debito'},
   {id:'efectivo',label:'Efectivo', desc:'', icono:'💰', texto:'Efectivo'},
 ];
@@ -268,21 +268,66 @@ let datosActuales={};
 
 function renderMetodosGrid(){
   const cont=document.getElementById('metodos-grid');
-  let h='';
-  METODOS_DISPONIBLES.forEach(m=>{
+  cont.innerHTML='';
+  METODOS_DISPONIBLES.forEach(function(m){
     const activo=metodosActivos[m.id];
     const bg=activo?'#EAF3DE':'#ffffff';
     const border=activo?'#004225':'#d0d0c8';
-    const checkColor=activo?'#004225':'#ccc';
-    h+=`<div onclick="toggleMetodoId('${m.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid ${border};border-radius:8px;cursor:pointer;background:${bg};transition:all .15s">
-      <div style="width:20px;height:20px;border-radius:5px;border:2px solid ${checkColor};background:${activo?'#004225':'white'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:white">${activo?'✓':''}</div>
-      <div style="flex:1">
-        <div style="font-size:12.5px;font-weight:500;color:${activo?'#004225':'#444'}">${m.icono} ${m.label}</div>
-        ${m.desc?'<div style="font-size:10.5px;color:#888;margin-top:1px">'+m.desc+'</div>':''}
-      </div>
-    </div>`;
+    const checkColor=activo?'#004225':'#cccccc';
+
+    const fila=document.createElement('div');
+    fila.setAttribute('data-metodo-id', m.id);
+    fila.style.display='flex';
+    fila.style.alignItems='center';
+    fila.style.gap='10px';
+    fila.style.padding='10px 12px';
+    fila.style.border='1.5px solid '+border;
+    fila.style.borderRadius='8px';
+    fila.style.cursor='pointer';
+    fila.style.background=bg;
+    fila.style.transition='all .15s';
+
+    const check=document.createElement('div');
+    check.style.width='20px';
+    check.style.height='20px';
+    check.style.borderRadius='5px';
+    check.style.border='2px solid '+checkColor;
+    check.style.background=activo?'#004225':'white';
+    check.style.display='flex';
+    check.style.alignItems='center';
+    check.style.justifyContent='center';
+    check.style.flexShrink='0';
+    check.style.fontSize='12px';
+    check.style.color='white';
+    check.textContent=activo?'\u2713':'';
+
+    const textos=document.createElement('div');
+    textos.style.flex='1';
+
+    const titulo=document.createElement('div');
+    titulo.style.fontSize='12.5px';
+    titulo.style.fontWeight='500';
+    titulo.style.color=activo?'#004225':'#444444';
+    titulo.textContent=m.icono+' '+m.label;
+    textos.appendChild(titulo);
+
+    if(m.desc){
+      const desc=document.createElement('div');
+      desc.style.fontSize='10.5px';
+      desc.style.color='#888888';
+      desc.style.marginTop='1px';
+      desc.textContent=m.desc;
+      textos.appendChild(desc);
+    }
+
+    fila.appendChild(check);
+    fila.appendChild(textos);
+    fila.addEventListener('click', function(){
+      toggleMetodoId(m.id);
+    });
+
+    cont.appendChild(fila);
   });
-  cont.innerHTML=h;
 }
 
 function toggleMetodoId(id){
