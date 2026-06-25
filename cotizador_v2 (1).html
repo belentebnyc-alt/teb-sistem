@@ -391,7 +391,7 @@ async function descargarPDF(){
   const btn=document.querySelector('.btn-primary');
   btn.textContent='⏳ Generando...';btn.disabled=true;
   try{
-    const resp=await fetch('/generar-cotizacion',{
+    const resp=await fetch('/api/generar-cotizacion',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         nombre:d.nombre,programa:d.programa,edicion:d.edicion,
@@ -407,11 +407,10 @@ async function descargarPDF(){
       a.href=url;a.download=`TEB_${d.nombre.replace(/\s+/g,'_')}_${d.edicion.replace(' ','_')}.pdf`;
       a.click();URL.revokeObjectURL(url);
     } else throw new Error();
-  }catch{
+  }catch(err){
     document.getElementById('alert-form').innerHTML=`
-      <div style="background:#FAEEDA;color:#633806;padding:10px 14px;border-radius:6px;font-size:12px;line-height:1.5">
-        <b>Para descargar el PDF:</b> ejecutá <code>python3 cotizador_server_v2.py</code> en la carpeta del proyecto,
-        o usá "Imprimir → Guardar como PDF" desde el navegador.
+      <div style="background:#FCEBEB;color:#791F1F;padding:10px 14px;border-radius:6px;font-size:12px;line-height:1.5">
+        <b>Error al generar el PDF.</b> Probá de nuevo en unos segundos, o usá "Imprimir → Guardar como PDF" desde el navegador como alternativa.
       </div>`;
   }
   btn.textContent='⬇ Descargar PDF';btn.disabled=false;
@@ -419,3 +418,4 @@ async function descargarPDF(){
 </script>
 </body>
 </html>
+
