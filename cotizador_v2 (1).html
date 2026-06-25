@@ -197,6 +197,35 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
           <input type="text" id="quien" placeholder="TEB NYC" oninput="actualizar()">
         </div>
       </div>
+      <div class="sec-title">Métodos de pago a mostrar</div>
+      <div class="plan-grid" style="grid-template-columns:1fr">
+        <label class="plan-option selected" style="padding:9px 12px" onclick="toggleMetodo(this,'Transferencia en pesos (sujeto al valor del dolar en el momento de cada pago)')">
+          <input type="checkbox" checked style="display:none">
+          <div class="plan-nombre" style="font-size:12.5px">💱 Transferencia en pesos</div>
+          <div class="plan-desc" style="font-size:10.5px">Sujeto al valor del dólar en el momento de cada pago</div>
+        </label>
+        <label class="plan-option selected" style="padding:9px 12px" onclick="toggleMetodo(this,'Transferencia en dolares')">
+          <input type="checkbox" checked style="display:none">
+          <div class="plan-nombre" style="font-size:12.5px">💵 Transferencia en dólares</div>
+        </label>
+        <label class="plan-option selected" style="padding:9px 12px" onclick="toggleMetodo(this,'Transferencia internacional a Bank of America')">
+          <input type="checkbox" checked style="display:none">
+          <div class="plan-nombre" style="font-size:12.5px">🏛️ Transferencia internacional a Bank of America</div>
+        </label>
+        <label class="plan-option selected" style="padding:9px 12px" onclick="toggleMetodo(this,'Tarjeta de credito o debito')">
+          <input type="checkbox" checked style="display:none">
+          <div class="plan-nombre" style="font-size:12.5px">💳 Tarjeta de crédito o débito</div>
+        </label>
+        <label class="plan-option selected" style="padding:9px 12px" onclick="toggleMetodo(this,'Efectivo')">
+          <input type="checkbox" checked style="display:none">
+          <div class="plan-nombre" style="font-size:12.5px">💰 Efectivo</div>
+        </label>
+      </div>
+      <div class="form-group" style="margin-top:8px">
+        <label>Método de pago adicional (opcional)</label>
+        <input type="text" id="metodo-custom" placeholder="Ej: Pago en oficina TEB Bogotá..." oninput="actualizar()">
+      </div>
+
       <div class="form-group">
         <label>Notas adicionales</label>
         <textarea id="notas" style="height:65px;resize:vertical" placeholder="Ej: Para confirmar la inscripción se requiere abonar la primera cuota..." oninput="actualizar()"></textarea>
@@ -248,7 +277,19 @@ const PLAN_STYLE={
 };
 
 let planSeleccionado='Economy';
+let metodosSeleccionados=['Transferencia en pesos (sujeto al valor del dolar en el momento de cada pago)','Transferencia en dolares','Transferencia internacional a Bank of America','Tarjeta de credito o debito','Efectivo'];
 let datosActuales={};
+
+function toggleMetodo(el, nombre){
+  el.classList.toggle('selected');
+  const activo=el.classList.contains('selected');
+  if(activo){
+    if(!metodosSeleccionados.includes(nombre))metodosSeleccionados.push(nombre);
+  } else {
+    metodosSeleccionados=metodosSeleccionados.filter(m=>m!==nombre);
+  }
+  actualizar();
+}
 
 function selPlan(p){
   planSeleccionado=p;
@@ -314,7 +355,10 @@ function actualizar(){
   const ed=EDICIONES[edKey];
   prevEd.textContent=ed?ed.label:'';
   const {cuotas,limite}=calcCuotas(ed.inicio,total,nCuotas);
-  datosActuales={nombre,programa,edicion:edKey,plan:planSeleccionado,valor,descuento:desc,upgrade,reprogramacion:reprog,cuotas:nCuotas,quien,notas,total,fechaViaje:ed.inicio,fechaLimite:limite};
+  const metodoCustomTmp=document.getElementById('metodo-custom').value.trim();
+  const metodosFinalesTmp=[...metodosSeleccionados];
+  if(metodoCustomTmp)metodosFinalesTmp.push(metodoCustomTmp);
+  datosActuales={nombre,programa,edicion:edKey,plan:planSeleccionado,valor,descuento:desc,upgrade,reprogramacion:reprog,cuotas:nCuotas,quien,notas,total,fechaViaje:ed.inicio,fechaLimite:limite,metodosPago:metodosFinalesTmp};
 
   const ps=PLAN_STYLE[planSeleccionado]||PLAN_STYLE['Economy'];
   let h='';
@@ -368,11 +412,16 @@ function actualizar(){
 
   // Medios de pago
   h+='<div class="p-sec"><div class="p-sec-t">Medios de pago</div>';
-  h+='<div style="display:flex;flex-wrap:wrap;gap:5px;font-size:12px">';
-  ['Stripe','Transferencia','MercadoPago','BOFA'].forEach(m=>{
-    h+=`<span style="background:#f5f5f0;padding:3px 10px;border-radius:20px;border:0.5px solid #e0e0d8">${m}</span>`;
-  });
-  h+='</div></div>';
+  if(metodosFinalesTmp.length){
+    h+='<div style="display:flex;flex-wrap:wrap;gap:5px;font-size:12px">';
+    metodosFinalesTmp.forEach(m=>{
+      h+=`<span style="background:#f5f5f0;padding:3px 10px;border-radius:20px;border:0.5px solid #e0e0d8">${m}</span>`;
+    });
+    h+='</div>';
+  } else {
+    h+='<div style="font-size:12px;color:#aaa">Ningún método seleccionado — elegí al menos uno en el formulario.</div>';
+  }
+  h+='</div>';
 
   if(notas){
     h+=`<div style="background:#E6F1FB;border-radius:8px;padding:10px 14px;font-size:12px;color:#0C447C;border:0.5px solid #B5D4F4;margin-top:8px;font-style:italic">${notas}</div>`;
@@ -398,6 +447,7 @@ async function descargarPDF(){
         plan:d.plan,valor_programa:d.valor,descuento:d.descuento,
         upgrade:d.upgrade,reprogramacion:d.reprogramacion,
         cuotas:d.cuotas,quien_recibe:d.quien,notas:d.notas,
+        metodos_pago:d.metodosPago,
       })
     });
     if(resp.ok){
@@ -418,4 +468,5 @@ async function descargarPDF(){
 </script>
 </body>
 </html>
+
 
