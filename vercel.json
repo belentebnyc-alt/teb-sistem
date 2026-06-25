@@ -1,15 +1,7 @@
 {
-  "cleanUrls": false,
-  "trailingSlash": false,
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache"
-        }
-      ]
+  "functions": {
+    "api/generar-cotizacion.py": {
+      "runtime": "python3.12"
     }
-  ]
+  }
 }
