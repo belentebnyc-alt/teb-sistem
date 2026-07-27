@@ -26,8 +26,6 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
 .form-group input:focus,.form-group select:focus{border-color:#004225;box-shadow:0 0 0 2px #00422510}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .hint{font-size:11px;color:#aaa;margin-top:3px}
-
-/* Selector de plan */
 .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
 .plan-option{border:1.5px solid #e0e0d8;border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s}
 .plan-option:hover{border-color:#004225}
@@ -36,13 +34,10 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
 .plan-nombre{font-size:13px;font-weight:500;color:#1a1a1a}
 .plan-desc{font-size:11px;color:#888;margin-top:2px;line-height:1.4}
 .plan-option.selected .plan-nombre{color:#004225}
-
 .btn{padding:10px 20px;border-radius:7px;font-size:13px;cursor:pointer;border:0.5px solid #d0d0c8;background:white;color:#1a1a1a;width:100%;font-weight:400}
 .btn-primary{background:#004225;color:white;border-color:#004225;font-weight:500}
 .btn-primary:hover{background:#003018}
 .btn-sec{background:#f5f5f0;margin-top:8px}
-
-/* Preview */
 .preview{background:white;border-radius:12px;border:0.5px solid #e0e0d8;overflow:hidden;position:sticky;top:24px;max-height:calc(100vh - 48px);overflow-y:auto}
 .prev-header{background:#004225;color:white;padding:18px 22px}
 .prev-title{font-size:18px;font-weight:600}
@@ -75,12 +70,15 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
 .calc-total{background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin:8px 0}
 .calc-total .label{font-size:12px;color:#27500A}
 .calc-total .amount{font-size:18px;font-weight:600;color:#004225}
+.modo-tab{flex:1;text-align:center;padding:8px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;user-select:none}
+.modo-tab.activo{border:1.5px solid #004225;background:#EAF3DE;color:#004225}
+.modo-tab.inactivo{border:1.5px solid #d0d0c8;background:white;color:#888}
 </style>
 </head>
 <body>
 <div class="topbar">
   <h1>TEB NYC — Cotizador de plan de pagos</h1>
-  <a href="panel_teb_v5.html">← Panel</a>
+  <a href="panel_teb_v10.html">← Panel</a>
 </div>
 
 <div class="main">
@@ -166,37 +164,108 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
         </div>
       </div>
 
-      <!-- Total calculado en tiempo real -->
       <div class="calc-total" id="calc-total" style="display:none">
         <span class="label">Total a abonar</span>
         <span class="amount" id="calc-total-val">USD 0</span>
       </div>
 
+      <!-- PLAN DE PAGOS -->
       <div class="sec-title">Plan de pagos</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Cantidad de cuotas <span class="req">*</span></label>
-          <select id="cuotas" onchange="actualizar()">
-            <option value="">—</option>
-            <option value="1">1 pago único</option>
-            <option value="2">2 cuotas</option>
-            <option value="3">3 cuotas</option>
-            <option value="4">4 cuotas</option>
-            <option value="5">5 cuotas</option>
-            <option value="6">6 cuotas</option>
-            <option value="7">7 cuotas</option>
-            <option value="8">8 cuotas</option>
-            <option value="9">9 cuotas</option>
-            <option value="10">10 cuotas</option>
-            <option value="11">11 cuotas</option>
-            <option value="12">12 cuotas</option>
-          </select>
+
+      <!-- Pestañas modo -->
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div id="tab-manual" class="modo-tab activo" onclick="setModo('manual')">✏️ Cuotas manual</div>
+        <div id="tab-auto" class="modo-tab inactivo" onclick="setModo('auto')">📅 Calcular por fechas</div>
+      </div>
+
+      <!-- MODO MANUAL -->
+      <div id="bloque-manual">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cantidad de cuotas <span class="req">*</span></label>
+            <select id="cuotas" onchange="onCuotasChange()">
+              <option value="">—</option>
+              <option value="1">1 pago único</option>
+              <option value="2">2 cuotas</option>
+              <option value="3">3 cuotas</option>
+              <option value="4">4 cuotas</option>
+              <option value="5">5 cuotas</option>
+              <option value="6">6 cuotas</option>
+              <option value="7">7 cuotas</option>
+              <option value="8">8 cuotas</option>
+              <option value="9">9 cuotas</option>
+              <option value="10">10 cuotas</option>
+              <option value="11">11 cuotas</option>
+              <option value="12">12 cuotas</option>
+              <option value="13">13 cuotas</option>
+              <option value="14">14 cuotas</option>
+              <option value="15">15 cuotas</option>
+              <option value="16">16 cuotas</option>
+              <option value="17">17 cuotas</option>
+              <option value="18">18 cuotas</option>
+              <option value="19">19 cuotas</option>
+              <option value="20">20 cuotas</option>
+              <option value="21">21 cuotas</option>
+              <option value="22">22 cuotas</option>
+              <option value="23">23 cuotas</option>
+              <option value="24">24 cuotas</option>
+              <option value="otro">Otro número...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Quién emite</label>
+            <input type="text" id="quien" placeholder="TEB NYC" oninput="actualizar()">
+          </div>
         </div>
-        <div class="form-group">
-          <label>Quién emite</label>
-          <input type="text" id="quien" placeholder="TEB NYC" oninput="actualizar()">
+        <div class="form-group" id="bloque-cuotas-custom" style="display:none">
+          <label>Número de cuotas <span class="req">*</span></label>
+          <input type="number" id="cuotas-custom" min="1" max="60" placeholder="Ej: 30" oninput="actualizar()">
+          <div class="hint">Ingresá cualquier número entre 1 y 60</div>
         </div>
       </div>
+
+      <!-- MODO AUTOMÁTICO -->
+      <div id="bloque-auto" style="display:none">
+        <div style="background:#E6F1FB;border:0.5px solid #B5D4F4;border-radius:8px;padding:10px 14px;font-size:12px;color:#0C447C;margin-bottom:10px;line-height:1.6">
+          📅 Ingresá desde qué mes empieza a pagar. La cantidad de cuotas se calcula automáticamente respetando los 45 días de anticipación antes del viaje.
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Mes inicio de pagos <span class="req">*</span></label>
+            <select id="auto-mes" onchange="actualizar()">
+              <option value="">Mes...</option>
+              <option value="0">Enero</option>
+              <option value="1">Febrero</option>
+              <option value="2">Marzo</option>
+              <option value="3">Abril</option>
+              <option value="4">Mayo</option>
+              <option value="5">Junio</option>
+              <option value="6">Julio</option>
+              <option value="7">Agosto</option>
+              <option value="8">Septiembre</option>
+              <option value="9">Octubre</option>
+              <option value="10">Noviembre</option>
+              <option value="11">Diciembre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Año <span class="req">*</span></label>
+            <select id="auto-anio" onchange="actualizar()">
+              <option value="">Año...</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+            </select>
+          </div>
+        </div>
+        <div id="auto-resultado" style="display:none;border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:8px;line-height:1.5"></div>
+        <div class="form-group">
+          <label>Quién emite</label>
+          <input type="text" id="quien-auto" placeholder="TEB NYC" oninput="actualizar()">
+        </div>
+      </div>
+
       <div class="sec-title">Métodos de pago a mostrar</div>
       <div id="metodos-grid" style="display:flex;flex-direction:column;gap:6px"></div>
       <div class="form-group" style="margin-top:10px">
@@ -255,6 +324,7 @@ const PLAN_STYLE={
 };
 
 let planSeleccionado='Economy';
+let modoActual='manual';
 
 const METODOS_DISPONIBLES=[
   {id:'pesos',  label:'Transferencia en pesos', desc:'Sujeto al valor del dólar en el momento de cada pago', icono:'💱', texto:'Transferencia en pesos (sujeto al valor del dolar en el momento de cada pago)'},
@@ -266,74 +336,65 @@ const METODOS_DISPONIBLES=[
 let metodosActivos={pesos:true,dolares:true,bofa:true,tarjeta:true,efectivo:true};
 let datosActuales={};
 
+function setModo(modo){
+  modoActual=modo;
+  document.getElementById('bloque-manual').style.display=modo==='manual'?'block':'none';
+  document.getElementById('bloque-auto').style.display=modo==='auto'?'block':'none';
+  document.getElementById('tab-manual').className='modo-tab '+(modo==='manual'?'activo':'inactivo');
+  document.getElementById('tab-auto').className='modo-tab '+(modo==='auto'?'activo':'inactivo');
+  actualizar();
+}
+
+function onCuotasChange(){
+  const v=document.getElementById('cuotas').value;
+  document.getElementById('bloque-cuotas-custom').style.display=v==='otro'?'block':'none';
+  actualizar();
+}
+
+function calcCuotasAuto(fechaViaje, mesInicio, anioInicio){
+  const limite=new Date(fechaViaje);
+  limite.setDate(limite.getDate()-45);
+  let m=limite.getMonth(),y=limite.getFullYear();
+  let ultimaFecha=new Date(y,m,15);
+  if(ultimaFecha>limite){m--;if(m<0){m=11;y--;}ultimaFecha=new Date(y,m,15);}
+  const inicio=new Date(anioInicio,mesInicio,15);
+  if(inicio>ultimaFecha)return 0;
+  let cm=inicio.getMonth(),cy=inicio.getFullYear(),count=0;
+  while(true){
+    const f=new Date(cy,cm,15);
+    if(f>ultimaFecha)break;
+    count++;
+    cm++;if(cm>11){cm=0;cy++;}
+  }
+  return count;
+}
+
 function renderMetodosGrid(){
   const cont=document.getElementById('metodos-grid');
   cont.innerHTML='';
   METODOS_DISPONIBLES.forEach(function(m){
     const activo=metodosActivos[m.id];
-    const bg=activo?'#EAF3DE':'#ffffff';
-    const border=activo?'#004225':'#d0d0c8';
-    const checkColor=activo?'#004225':'#cccccc';
-
     const fila=document.createElement('div');
-    fila.setAttribute('data-metodo-id', m.id);
-    fila.style.display='flex';
-    fila.style.alignItems='center';
-    fila.style.gap='10px';
-    fila.style.padding='10px 12px';
-    fila.style.border='1.5px solid '+border;
-    fila.style.borderRadius='8px';
-    fila.style.cursor='pointer';
-    fila.style.background=bg;
-    fila.style.transition='all .15s';
-
+    fila.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid '+(activo?'#004225':'#d0d0c8')+';border-radius:8px;cursor:pointer;background:'+(activo?'#EAF3DE':'#ffffff')+';transition:all .15s';
     const check=document.createElement('div');
-    check.style.width='20px';
-    check.style.height='20px';
-    check.style.borderRadius='5px';
-    check.style.border='2px solid '+checkColor;
-    check.style.background=activo?'#004225':'white';
-    check.style.display='flex';
-    check.style.alignItems='center';
-    check.style.justifyContent='center';
-    check.style.flexShrink='0';
-    check.style.fontSize='12px';
-    check.style.color='white';
+    check.style.cssText='width:20px;height:20px;border-radius:5px;border:2px solid '+(activo?'#004225':'#cccccc')+';background:'+(activo?'#004225':'white')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:white';
     check.textContent=activo?'\u2713':'';
-
     const textos=document.createElement('div');
     textos.style.flex='1';
-
     const titulo=document.createElement('div');
-    titulo.style.fontSize='12.5px';
-    titulo.style.fontWeight='500';
-    titulo.style.color=activo?'#004225':'#444444';
+    titulo.style.cssText='font-size:12.5px;font-weight:500;color:'+(activo?'#004225':'#444444');
     titulo.textContent=m.icono+' '+m.label;
     textos.appendChild(titulo);
-
     if(m.desc){
       const desc=document.createElement('div');
-      desc.style.fontSize='10.5px';
-      desc.style.color='#888888';
-      desc.style.marginTop='1px';
+      desc.style.cssText='font-size:10.5px;color:#888888;margin-top:1px';
       desc.textContent=m.desc;
       textos.appendChild(desc);
     }
-
-    fila.appendChild(check);
-    fila.appendChild(textos);
-    fila.addEventListener('click', function(){
-      toggleMetodoId(m.id);
-    });
-
+    fila.appendChild(check);fila.appendChild(textos);
+    fila.addEventListener('click',function(){metodosActivos[m.id]=!metodosActivos[m.id];renderMetodosGrid();actualizar();});
     cont.appendChild(fila);
   });
-}
-
-function toggleMetodoId(id){
-  metodosActivos[id]=!metodosActivos[id];
-  renderMetodosGrid();
-  actualizar();
 }
 
 function metodosSeleccionadosActuales(){
@@ -343,9 +404,7 @@ function metodosSeleccionadosActuales(){
 function selPlan(p){
   planSeleccionado=p;
   document.querySelectorAll('.plan-option').forEach(el=>el.classList.remove('selected'));
-  document.querySelectorAll('.plan-option').forEach(el=>{
-    if(el.querySelector('input').value===p)el.classList.add('selected');
-  });
+  document.querySelectorAll('.plan-option').forEach(el=>{if(el.querySelector('input').value===p)el.classList.add('selected');});
   actualizar();
 }
 
@@ -361,10 +420,7 @@ function calcCuotas(fechaViaje, total, n){
   if(candidato>limite){m--;if(m<0){m=11;y--;}candidato=new Date(y,m,15);}
   while(candidato>limite){m--;if(m<0){m=11;y--;}candidato=new Date(y,m,15);}
   const fechas=[];let cm=candidato.getMonth(),cy=candidato.getFullYear();
-  for(let i=0;i<n;i++){
-    fechas.push(new Date(cy,cm,15));
-    cm--;if(cm<0){cm=11;cy--;}
-  }
+  for(let i=0;i<n;i++){fechas.push(new Date(cy,cm,15));cm--;if(cm<0){cm=11;cy--;}}
   fechas.reverse();
   const base=Math.round(total/n);
   const ult=total-base*(n-1);
@@ -372,19 +428,46 @@ function calcCuotas(fechaViaje, total, n){
 }
 
 function actualizar(){
-  const nombre   =document.getElementById('nombre').value.trim();
-  const programa =document.getElementById('programa').value;
-  const edKey    =document.getElementById('edicion').value;
-  const valor    =parseFloat(document.getElementById('valor').value)||0;
-  const desc     =parseFloat(document.getElementById('descuento').value)||0;
-  const upgrade  =parseFloat(document.getElementById('upgrade').value)||0;
-  const reprog   =parseFloat(document.getElementById('reprog').value)||0;
-  const nCuotas  =parseInt(document.getElementById('cuotas').value)||0;
-  const quien    =document.getElementById('quien').value||'TEB NYC';
-  const notas    =document.getElementById('notas').value;
-  const total    =valor-desc+upgrade+reprog;
+  const nombre  =document.getElementById('nombre').value.trim();
+  const programa=document.getElementById('programa').value;
+  const edKey   =document.getElementById('edicion').value;
+  const valor   =parseFloat(document.getElementById('valor').value)||0;
+  const desc    =parseFloat(document.getElementById('descuento').value)||0;
+  const upgrade =parseFloat(document.getElementById('upgrade').value)||0;
+  const reprog  =parseFloat(document.getElementById('reprog').value)||0;
+  const notas   =document.getElementById('notas').value;
+  const total   =valor-desc+upgrade+reprog;
 
-  // Calc total en tiempo real
+  // Obtener nCuotas y quien según el modo
+  let nCuotas=0, quien='TEB NYC';
+  if(modoActual==='manual'){
+    const selVal=document.getElementById('cuotas').value;
+    nCuotas=selVal==='otro'?(parseInt(document.getElementById('cuotas-custom').value)||0):(parseInt(selVal)||0);
+    quien=document.getElementById('quien').value||'TEB NYC';
+  } else {
+    const autoMes=document.getElementById('auto-mes').value;
+    const autoAnio=document.getElementById('auto-anio').value;
+    quien=document.getElementById('quien-auto').value||'TEB NYC';
+    const resDiv=document.getElementById('auto-resultado');
+    if(autoMes!==''&&autoAnio&&edKey){
+      const ed2=EDICIONES[edKey];
+      if(ed2){
+        nCuotas=calcCuotasAuto(ed2.inicio,parseInt(autoMes),parseInt(autoAnio));
+        resDiv.style.display='block';
+        if(nCuotas>0){
+          resDiv.style.cssText='display:block;background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:8px;padding:10px 14px;font-size:12px;color:#27500A;margin-bottom:8px;line-height:1.5';
+          resDiv.innerHTML='✅ <b>'+nCuotas+' cuotas</b> desde '+MESES[parseInt(autoMes)]+' '+autoAnio+' hasta 45 días antes del viaje.';
+        } else {
+          resDiv.style.cssText='display:block;background:#FCEBEB;border:0.5px solid #F7C1C1;border-radius:8px;padding:10px 14px;font-size:12px;color:#791F1F;margin-bottom:8px;line-height:1.5';
+          resDiv.innerHTML='⚠ La fecha de inicio es posterior al límite de pagos. Elegí un mes anterior.';
+        }
+      }
+    } else {
+      resDiv.style.display='none';
+    }
+  }
+
+  // Total en tiempo real
   if(valor>0){
     document.getElementById('calc-total').style.display='flex';
     document.getElementById('calc-total-val').textContent=usd(total);
@@ -412,29 +495,23 @@ function actualizar(){
   const ps=PLAN_STYLE[planSeleccionado]||PLAN_STYLE['Economy'];
   let h='';
 
-  // Alumno
   h+='<div class="p-sec"><div class="p-sec-t">Alumno</div>';
   h+=`<div class="p-row"><span class="lbl">Nombre</span><span class="val">${nombre}</span></div>`;
   h+=`<div class="p-row"><span class="lbl">Programa</span><span class="val">${programa}</span></div>`;
   h+=`<div class="p-row"><span class="lbl">Edición</span><span class="val">${edKey}</span></div>`;
   h+='</div>';
 
-  // Fechas viaje
   if(ed){
     h+='<div class="p-sec"><div class="p-sec-t">Fechas del viaje</div>';
     h+=`<div class="fechas-box">Check-in: <b>${ed.checkin}</b><br>Check-out: <b>${ed.checkout}</b></div>`;
     h+='</div>';
   }
 
-  // Plan
   h+='<div class="p-sec"><div class="p-sec-t">Plan de hospedaje</div>';
-  h+=`<div class="plan-badge" style="background:${ps.bg};color:${ps.color};border:1px solid ${ps.border}">
-    ${planSeleccionado}
-  </div>`;
+  h+=`<div class="plan-badge" style="background:${ps.bg};color:${ps.color};border:1px solid ${ps.border}">${planSeleccionado}</div>`;
   h+=`<div style="font-size:12px;color:#888">${PLAN_DESC[planSeleccionado]||''}</div>`;
   h+='</div>';
 
-  // Económico
   h+='<div class="p-sec"><div class="p-sec-t">Detalle económico</div>';
   h+=`<div class="p-row"><span class="lbl">Valor del programa</span><span class="val">${usd(valor)}</span></div>`;
   if(desc>0)h+=`<div class="p-row"><span class="lbl">Beca / descuento</span><span class="val" style="color:#27500A">- ${usd(desc)}</span></div>`;
@@ -443,7 +520,6 @@ function actualizar(){
   h+=`<div class="p-row total"><span class="lbl">TOTAL A ABONAR</span><span class="val">${usd(total)}</span></div>`;
   h+='</div>';
 
-  // Cuotas
   h+=`<div class="p-sec"><div class="p-sec-t">Plan de pagos — ${nCuotas} cuota${nCuotas>1?'s':''}</div>`;
   cuotas.forEach(c=>{
     const cls=c.ultima?'ultima':c.n%2===0?'par':'impar';
@@ -459,16 +535,13 @@ function actualizar(){
   h+=`<div class="alerta">⚠ <b>Fecha límite del último pago:</b> antes del ${fmt(limite)}<br>El viaje inicia el ${fmt(ed.inicio)} (se requieren 45 días de anticipación).</div>`;
   h+='</div>';
 
-  // Medios de pago
   h+='<div class="p-sec"><div class="p-sec-t">Medios de pago</div>';
   if(metodosFinalesTmp.length){
     h+='<div style="display:flex;flex-wrap:wrap;gap:5px;font-size:12px">';
-    metodosFinalesTmp.forEach(m=>{
-      h+=`<span style="background:#f5f5f0;padding:3px 10px;border-radius:20px;border:0.5px solid #e0e0d8">${m}</span>`;
-    });
+    metodosFinalesTmp.forEach(m=>{h+=`<span style="background:#f5f5f0;padding:3px 10px;border-radius:20px;border:0.5px solid #e0e0d8">${m}</span>`;});
     h+='</div>';
   } else {
-    h+='<div style="font-size:12px;color:#aaa">Ningún método seleccionado — elegí al menos uno en el formulario.</div>';
+    h+='<div style="font-size:12px;color:#aaa">Ningún método seleccionado.</div>';
   }
   h+='</div>';
 
@@ -519,6 +592,3 @@ renderMetodosGrid();
 </script>
 </body>
 </html>
-
-
-
