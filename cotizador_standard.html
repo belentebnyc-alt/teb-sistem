@@ -739,7 +739,7 @@ async function descargarPDF() {
       const blob = await resp.blob();
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
-      a.href = url; a.download = `STEPNY_${d.nombre.replace(/\s+/g,'_')}_${d.edicion.replace(' ','_')}.pdf`;
+      a.href = url; a.download = `TEB_${d.nombre.replace(/\s+/g,'_')}_${d.edicion.replace(' ','_')}.pdf`;
       a.click(); URL.revokeObjectURL(url);
     } else throw new Error();
   } catch(err) {
