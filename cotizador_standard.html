@@ -655,10 +655,7 @@ function actualizar() {
   if (pais) h += `<div class="p-row"><span class="lbl">País</span><span class="val">${pais}</span></div>`;
   h += '</div>';
 
-  // Fechas
-  h += '<div class="p-sec"><div class="p-sec-t">Fechas del viaje</div>';
-  h += `<div class="fechas-box">Check-in: <b>${ed.checkin}</b><br>Check-out: <b>${ed.checkout}</b></div>`;
-  h += '</div>';
+
 
   // Plan
   const PS = { Economy:{bg:'#f5f5f0',color:'#444',border:'#d0d0c8'}, Comfort:{bg:'#f0f0f8',color:'#333',border:'#c0c0d8'}, 'Comfort Stay+':{bg:'#f0f0f8',color:'#222',border:'#b0b0cc'}, 'Sin hotel':{bg:'#f5f5f0',color:'#666',border:'#e0e0d8'} };
@@ -692,19 +689,7 @@ function actualizar() {
   h += `<div style="font-size:11px;opacity:.5;margin-top:4px">Último pago: ${fmt(limite)}</div>`;
   h += '</div>';
 
-  // Cuotas detalle (preview — no irá en PDF)
-  cuotas.forEach(c => {
-    const cls = c.ultima ? 'ultima' : c.n % 2 === 0 ? 'par' : 'impar';
-    h += `<div class="cuota-item ${cls}">
-      <div class="cuota-num">${c.n}</div>
-      <div class="cuota-info">
-        <div class="cuota-mes">${fmtMes(c.fecha)}</div>
-        <div class="cuota-vence">Del 1 al 15 de ${MESES_G[c.fecha.getMonth()]}${c.ultima?' · Último pago':''}</div>
-      </div>
-      <div class="cuota-monto">${usd2(c.monto)}</div>
-    </div>`;
-  });
-  h += `<div class="alerta">⚠ <b>Fecha límite del último pago:</b> antes del ${fmt(limite)}<br>El viaje inicia el ${fmt(ed.inicio)} (se requieren 45 días de anticipación).</div>`;
+
   h += '</div>';
 
   // Medios de pago
