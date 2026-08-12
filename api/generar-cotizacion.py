@@ -114,7 +114,7 @@ def generar_pdf(datos):
     # ── ENCABEZADO NEGRO ──────────────────────────────────────
     h_rows = [[Paragraph('TEB NYC', E['tit'])]]
     if ed_key in EDICIONES:
-        h_rows.append([Paragraph(EDICIONES[ed_key]['label'], E['edi'])])
+        h_rows.append([Paragraph(ed_key, E['edi'])])
     ht = Table(h_rows, colWidths=[W])
     ht.setStyle(TableStyle([
         ('BACKGROUND',  (0,0),(-1,-1), NEGRO),
@@ -155,25 +155,7 @@ def generar_pdf(datos):
     st.append(at)
     st.append(Spacer(1, 4*mm))
 
-    # ── FECHAS DEL VIAJE ─────────────────────────────────────
-    if ed_key in EDICIONES:
-        st.append(Paragraph('Fechas del viaje', E['sec']))
-        ed_data = EDICIONES[ed_key]
-        ft = Table([
-            [Paragraph('Check-in', E['lbl']),          Paragraph('Check-out', E['lbl']),          Paragraph('Duracion', E['lbl'])],
-            [Paragraph(ed_data['checkin'],  E['nor']),  Paragraph(ed_data['checkout'], E['nor']),  Paragraph(ed_data['duracion'], E['val'])],
-        ], colWidths=[W*0.42, W*0.42, W*0.16])
-        ft.setStyle(TableStyle([
-            ('BACKGROUND',   (0,0),(-1,-1), GRIS_F),
-            ('BACKGROUND',   (0,0),(-1, 0), GRIS_M),
-            ('TOPPADDING',   (0,0),(-1,-1), 8),
-            ('BOTTOMPADDING',(0,0),(-1,-1), 8),
-            ('LEFTPADDING',  (0,0),(-1,-1), 12),
-            ('BOX',          (0,0),(-1,-1), 0.5, GRIS_L),
-            ('INNERGRID',    (0,0),(-1,-1), 0.3, GRIS_L),
-        ]))
-        st.append(ft)
-        st.append(Spacer(1, 4*mm))
+
 
     # ── PLAN DE HOSPEDAJE ────────────────────────────────────
     st.append(Paragraph('Plan de hospedaje', E['sec']))
@@ -239,19 +221,19 @@ def generar_pdf(datos):
 
     plan_data = [
         [Paragraph(f"{n_cuotas} {'pago unico' if n_cuotas==1 else 'cuotas'}", E['plan_n'])],
-        [Paragraph(f"USD {monto_cuota:,.0f} por cuota  ·  {rango}", E['plan_s'])],
-        [Paragraph(f"Del 1 al 15 de cada mes  ·  Ultimo pago: antes del {fmt(fecha_lim)}", E['plan_d'])],
+        [Paragraph(f"USD {monto_cuota:,.0f} por cuota  —  {rango}", E['plan_s'])],
+        [Paragraph(f"Del 1 al 15 de cada mes", E['plan_d'])],
+        [Paragraph(f"Ultimo pago: antes del {fmt(fecha_lim)}", E['plan_d'])],
     ]
     plan_t = Table(plan_data, colWidths=[W])
     plan_t.setStyle(TableStyle([
-        ('BACKGROUND',   (0,0),(-1,-1), NEGRO),
-        ('TOPPADDING',   (0,0),(-1, 0), 16),
-        ('BOTTOMPADDING',(0,-1),(-1,-1), 16),
-        ('TOPPADDING',   (0,1),(-1,-1), 4),
-        ('BOTTOMPADDING',(0,0),(-1,-2), 2),
-        ('LEFTPADDING',  (0,0),(-1,-1), 18),
-        ('RIGHTPADDING', (0,0),(-1,-1), 18),
-        ('ROUNDEDCORNERS', [6]),
+        ('BACKGROUND',    (0,0),(-1,-1), NEGRO),
+        ('TOPPADDING',    (0,0),(-1,-1), 5),
+        ('BOTTOMPADDING', (0,0),(-1,-1), 5),
+        ('TOPPADDING',    (0,0),(-1, 0), 14),
+        ('BOTTOMPADDING', (0,-1),(-1,-1), 14),
+        ('LEFTPADDING',   (0,0),(-1,-1), 18),
+        ('RIGHTPADDING',  (0,0),(-1,-1), 18),
     ]))
     st.append(plan_t)
     st.append(Spacer(1, 3*mm))
