@@ -140,10 +140,6 @@ def generar_pdf(datos):
     col_labels = ['Nombre', 'Programa', 'Edicion']
     col_vals   = [nombre,    programa,    ed_key or '—']
     col_w      = [W*0.38, W*0.28, W*0.34]
-    if pais:
-        col_labels = ['Nombre', 'Programa', 'Edicion', 'Pais']
-        col_vals   = [nombre,    programa,    ed_key or '—', pais]
-        col_w      = [W*0.30, W*0.24, W*0.24, W*0.22]
     at = Table([
         [Paragraph(l, E['lbl']) for l in col_labels],
         [Paragraph(v, E['val']) for v in col_vals],
