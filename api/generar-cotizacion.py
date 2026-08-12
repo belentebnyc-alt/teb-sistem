@@ -77,9 +77,9 @@ def estilos():
         'pie':  ParagraphStyle('pie',  fontName='Helvetica',          fontSize=7,  textColor=GRIS3,   alignment=TA_CENTER, leading=10),
         'nota': ParagraphStyle('nota', fontName='Helvetica-Oblique',  fontSize=8,  textColor=GRIS2,   leading=11),
         'legal':ParagraphStyle('legal',fontName='Helvetica',          fontSize=7,  textColor=GRIS3,   alignment=TA_CENTER, leading=10),
-        'plan_n': ParagraphStyle('plan_n', fontName='Helvetica-Bold', fontSize=28, textColor=BLANCO),
-        'plan_s': ParagraphStyle('plan_s', fontName='Helvetica',      fontSize=13, textColor=colors.HexColor('#cccccc'), leading=18),
-        'plan_d': ParagraphStyle('plan_d', fontName='Helvetica',      fontSize=10, textColor=colors.HexColor('#999999'), leading=14),
+        'plan_n': ParagraphStyle('plan_n', fontName='Helvetica-Bold', fontSize=20, textColor=BLANCO, leading=24),
+        'plan_s': ParagraphStyle('plan_s', fontName='Helvetica',      fontSize=11, textColor=colors.HexColor('#cccccc'), leading=15),
+        'plan_d': ParagraphStyle('plan_d', fontName='Helvetica',      fontSize=9,  textColor=colors.HexColor('#999999'), leading=13),
         'imp':  ParagraphStyle('imp',  fontName='Helvetica-Bold',     fontSize=8,  textColor=ROJO),
     }
 
