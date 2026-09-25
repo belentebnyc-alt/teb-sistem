@@ -650,8 +650,8 @@ function actualizar() {
       upgrade:upgradeV, reprogramacion:reprogV, cuotas:nCuotas,
       quien:quien, notas:notasV, total:total, metodosPago:metodos,
       p400:p400, limite:limiteDate,
-      pagoIniMes: pagoIniMes ? pagoIniMes.toISOString().split('T')[0] : null,
-      fechasCuotas: modo==='manual' ? cuotasFechas.map(function(f){ return f.toISOString().split('T')[0]; }) : null,
+      pagoIniDisplay: pagoIniMes ? (MESES[pagoIniMes.getMonth()]+' '+pagoIniMes.getFullYear()) : null,
+      fechasCuotas: cuotasFechas.map(function(f){ return f.toISOString().split('T')[0]; }),
     };
 
     prevEd.textContent = EDICIONES[edKey] ? EDICIONES[edKey].label : '';
@@ -741,7 +741,7 @@ async function descargarPDF() {
         descuento5:d.descuento5, upgrade:d.upgrade, reprogramacion:d.reprogramacion,
         cuotas:d.cuotas, quien_recibe:d.quien, notas:d.notas,
         metodos_pago:d.metodosPago, cuotas_fechas:d.fechasCuotas||null,
-        pago_inicial_400:d.p400||false, pago_ini_mes:d.pagoIniMes||null,
+        pago_inicial_400:d.p400||false, pago_ini_display:d.pagoIniDisplay||null,
       })
     });
     if (resp.ok) {
