@@ -1,7 +1,1 @@
-{
-  "functions": {
-    "api/generar-cotizacion.py": {
-      "maxDuration": 60
-    }
-  }
-}
+{}
