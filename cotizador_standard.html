@@ -600,7 +600,7 @@ function actualizar() {
       const resto = pago400Activo ? total-400 : total;
       const base=Math.round(resto/nCuotas), ult=resto-base*(nCuotas-1);
       cuotasArr=fechasManual.map((f,i)=>({n:i+1,fecha:f,monto:i===nCuotas-1?ult:base,ultima:i===nCuotas-1}));
-      if (pago400Activo) cuotasArr.unshift({n:0,fecha:fechasManual[0],monto:400,inicial:true});
+      if (pago400Activo) { const fi=fechasManual[0]; cuotasArr.unshift({n:0,fecha:fi,monto:400,inicial:true}); }
       limiteDate=fechasManual[fechasManual.length-1];
     }
   } else {
@@ -624,13 +624,14 @@ function actualizar() {
       const resto = pago400Activo ? total-400 : total;
       const res=calcCuotas(EDICIONES[edKey].inicio,resto,nCuotas);
       cuotasArr=res.cuotas; limiteDate=res.limite;
-      if (pago400Activo) cuotasArr.unshift({n:0,fecha:cuotasArr[0].fecha,monto:400,inicial:true});
+      if (pago400Activo) { const fi=cuotasArr[0].fecha; cuotasArr.unshift({n:0,fecha:fi,monto:400,inicial:true}); }
     }
   }
 
   const prev=document.getElementById('prev-body');
   const prevEd=document.getElementById('prev-ed');
-  if(!nombre||!programa||!edKey||!valor||nCuotas===0||cuotasArr.length===0){
+  const cuotasReales = cuotasArr.filter(c => !c.inicial);
+  if(!nombre||!programa||!edKey||!valor||nCuotas===0||cuotasReales.length===0){
     prev.innerHTML='<div class="empty">Completá todos los campos obligatorios para ver la cotización.</div>';
     prevEd.textContent=''; return;
   }
@@ -672,7 +673,6 @@ function actualizar() {
   h+=`<div class="p-row total"><span class="lbl">TOTAL A ABONAR</span><span class="val">${usd(total)}</span></div>`;
   h+='</div>';
 
-  const cuotasReales = pago400Activo ? cuotasArr.slice(1) : cuotasArr;
   const primerMes=fmtMes(cuotasReales[0].fecha);
   const ultimoMes=fmtMes(cuotasReales[cuotasReales.length-1].fecha);
   const rangoMeses=nCuotas===1?primerMes:`${primerMes} a ${ultimoMes}`;
