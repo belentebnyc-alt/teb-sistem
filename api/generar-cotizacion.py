@@ -210,13 +210,22 @@ def generar_pdf(datos):
     monto_cuota = cuotas[0]['monto']
     plan_rows = []
     if pago_inicial_400:
-        plan_rows.append([Paragraph("Pago inicial: USD 400", E['plan_d'])])
-    plan_rows += [
-        [Paragraph(f"{n_cuotas} {'cuota' if n_cuotas==1 else 'cuotas'}", E['plan_n'])],
-        [Paragraph(f"USD {monto_cuota:,.0f} por cuota  —  {rango}", E['plan_s'])],
-        [Paragraph(f"Del 1 al 15 de cada mes", E['plan_d'])],
-        [Paragraph(f"Ultimo pago: antes del {fmt(fecha_lim)}", E['plan_d'])],
-    ]
+        # El pago inicial es el primer mes, las cuotas siguen desde el mes siguiente
+        mes_inicial = fmt_mes(cuotas[0]['fecha'])
+        rango_cuotas = fmt_mes(cuotas[0]['fecha']) if n_cuotas == 1 else f"{fmt_mes(cuotas[0]['fecha'])}  a  {fmt_mes(cuotas[-1]['fecha'])}"
+        plan_rows.append([Paragraph(f"Pago inicial:  USD 400  —  {mes_inicial}", E['plan_s'])])
+        plan_rows.append([Paragraph(" ", ParagraphStyle('sp', fontSize=4))])
+        plan_rows += [
+            [Paragraph(f"{n_cuotas} {'cuota' if n_cuotas==1 else 'cuotas'}  de  USD {monto_cuota:,.0f}", E['plan_n'])],
+            [Paragraph(f"{rango_cuotas}", E['plan_s'])],
+            [Paragraph(f"Del 1 al 15 de cada mes  ·  Ultimo pago: antes del {fmt(fecha_lim)}", E['plan_d'])],
+        ]
+    else:
+        plan_rows += [
+            [Paragraph(f"{n_cuotas} {'pago unico' if n_cuotas==1 else 'cuotas'}  de  USD {monto_cuota:,.0f}", E['plan_n'])],
+            [Paragraph(f"{rango}", E['plan_s'])],
+            [Paragraph(f"Del 1 al 15 de cada mes  ·  Ultimo pago: antes del {fmt(fecha_lim)}", E['plan_d'])],
+        ]
     plan_data = plan_rows
     plan_t = Table(plan_data, colWidths=[W])
     plan_t.setStyle(TableStyle([
