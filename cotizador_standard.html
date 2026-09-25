@@ -110,6 +110,8 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
             <option value="">Seleccioná...</option>
             <option>Julio 2026</option><option>Enero 2027</option>
             <option>Julio 2027</option><option>Enero 2028</option>
+            <option>Julio 2028</option><option>Enero 2029</option>
+            <option>Julio 2029</option>
           </select>
         </div>
       </div>
@@ -181,6 +183,13 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
           <div class="descuento-label">Aplicar 5% de descuento promocional (Enero 2027)</div>
           <div class="descuento-val" id="desc5-val"></div>
         </div>
+      </div>
+
+      <!-- Pago inicial USD 400 -->
+      <div class="descuento-box" id="pago400-box" onclick="togglePago400()">
+        <div class="descuento-check" id="pago400-check"></div>
+        <div class="descuento-label">Primer pago fijo de USD 400 — el resto en cuotas iguales</div>
+        <div class="descuento-val" id="pago400-val"></div>
       </div>
 
       <div class="calc-total" id="calc-total" style="display:none">
@@ -335,8 +344,11 @@ const PRECIOS_PROGRAMA = {
 const PRECIOS_HOTEL = {
   'Julio 2026':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
   'Enero 2027':  { Economy: 0, Comfort: 1100, 'Comfort Stay+': 2303, 'Sin hotel': -400 },
-  'Julio 2027':  { Economy: 0, Comfort: 1100, 'Comfort Stay+': null, 'Sin hotel': -400 },
+  'Julio 2027':  { Economy: 0, Comfort: 1100, 'Comfort Stay+': 3120, 'Sin hotel': -400 },
   'Enero 2028':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
+  'Julio 2028':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
+  'Enero 2029':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
+  'Julio 2029':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
 };
 const METODOS_POR_PAIS = {
   'Argentina': ['pesos', 'dolares', 'bofa', 'tarjeta', 'efectivo'],
@@ -348,6 +360,9 @@ const EDICIONES = {
   'Enero 2027': { inicio: new Date(2027,0,27), label: 'TEB NYC — Enero 2027' },
   'Julio 2027': { inicio: new Date(2027,6,16), label: 'TEB NYC — Julio 2027' },
   'Enero 2028': { inicio: new Date(2028,0,15), label: 'TEB NYC — Enero 2028' },
+  'Julio 2028': { inicio: new Date(2028,6,15), label: 'TEB NYC — Julio 2028' },
+  'Enero 2029': { inicio: new Date(2029,0,15), label: 'TEB NYC — Enero 2029' },
+  'Julio 2029': { inicio: new Date(2029,6,15), label: 'TEB NYC — Julio 2029' },
 };
 const PLAN_DESC = {
   'Economy':      'Habitación compartida en hotel seleccionado.',
@@ -369,6 +384,7 @@ let planSeleccionado = 'Economy';
 let modoActual       = 'manual';
 let frecuenciaManual = 1;
 let desc5Activo      = false;
+let pago400Activo    = false;
 let metodosActivos   = { pesos:false, dolares:false, bofa:true, tarjeta:true, efectivo:false };
 let datosActuales    = {};
 
@@ -485,6 +501,16 @@ function renderDesc5() {
   val.textContent = desc5Activo&&v>0 ? '− USD '+Math.round(v*0.05) : '';
 }
 
+function togglePago400() { pago400Activo=!pago400Activo; renderPago400(); actualizar(); }
+function renderPago400() {
+  const box=document.getElementById('pago400-box');
+  const check=document.getElementById('pago400-check');
+  const val=document.getElementById('pago400-val');
+  box.classList.toggle('activo', pago400Activo);
+  check.textContent = pago400Activo ? '✓' : '';
+  val.textContent = pago400Activo ? 'USD 400 + cuotas' : '';
+}
+
 function onPaisChange() {
   const pais = document.getElementById('pais').value;
   const metodos = METODOS_POR_PAIS[pais] || METODOS_POR_PAIS['default'];
@@ -571,8 +597,10 @@ function actualizar() {
     } else { document.getElementById('manual-resultado').style.display='none'; }
 
     if (nCuotas>0&&valor>0) {
-      const base=Math.round(total/nCuotas), ult=total-base*(nCuotas-1);
+      const resto = pago400Activo ? total-400 : total;
+      const base=Math.round(resto/nCuotas), ult=resto-base*(nCuotas-1);
       cuotasArr=fechasManual.map((f,i)=>({n:i+1,fecha:f,monto:i===nCuotas-1?ult:base,ultima:i===nCuotas-1}));
+      if (pago400Activo) cuotasArr.unshift({n:0,fecha:fechasManual[0],monto:400,inicial:true});
       limiteDate=fechasManual[fechasManual.length-1];
     }
   } else {
@@ -593,8 +621,10 @@ function actualizar() {
       }
     } else { resDiv.style.display='none'; }
     if(nCuotas>0&&edKey&&valor>0){
-      const res=calcCuotas(EDICIONES[edKey].inicio,total,nCuotas);
+      const resto = pago400Activo ? total-400 : total;
+      const res=calcCuotas(EDICIONES[edKey].inicio,resto,nCuotas);
       cuotasArr=res.cuotas; limiteDate=res.limite;
+      if (pago400Activo) cuotasArr.unshift({n:0,fecha:cuotasArr[0].fecha,monto:400,inicial:true});
     }
   }
 
@@ -613,6 +643,7 @@ function actualizar() {
 
   datosActuales={nombre,programa,edicion:edKey,pais,plan:planSeleccionado,valor,descuento:desc,descuento5:desc5,upgrade,reprogramacion:reprog,cuotas:nCuotas,quien,notas,total,metodosPago:metodos,
     cuotasFechas: modoActual==='manual' ? fechasManual.map(f=>f.toISOString().split('T')[0]) : null,
+    pago400: pago400Activo,
     fechaLimite: limiteDate, fechaViaje: ed.inicio};
 
   const PS={Economy:{bg:'#f5f5f0',color:'#444',border:'#d0d0c8'},Comfort:{bg:'#f0f0f8',color:'#333',border:'#c0c0d8'},'Comfort Stay+':{bg:'#f0f0f8',color:'#222',border:'#b0b0cc'},'Sin hotel':{bg:'#f5f5f0',color:'#666',border:'#e0e0d8'}};
@@ -641,13 +672,17 @@ function actualizar() {
   h+=`<div class="p-row total"><span class="lbl">TOTAL A ABONAR</span><span class="val">${usd(total)}</span></div>`;
   h+='</div>';
 
-  const primerMes=fmtMes(cuotasArr[0].fecha);
-  const ultimoMes=fmtMes(cuotasArr[cuotasArr.length-1].fecha);
+  const cuotasReales = pago400Activo ? cuotasArr.slice(1) : cuotasArr;
+  const primerMes=fmtMes(cuotasReales[0].fecha);
+  const ultimoMes=fmtMes(cuotasReales[cuotasReales.length-1].fecha);
   const rangoMeses=nCuotas===1?primerMes:`${primerMes} a ${ultimoMes}`;
   h+='<div class="p-sec"><div class="p-sec-t">Plan de pagos</div>';
   h+=`<div style="background:#111111;color:white;border-radius:10px;padding:16px 18px;margin-bottom:10px">`;
-  h+=`<div style="font-size:22px;font-weight:700;letter-spacing:-.5px">${nCuotas} ${nCuotas===1?'pago único':'cuotas'}</div>`;
-  h+=`<div style="font-size:13px;opacity:.8;margin-top:4px">${usd2(cuotasArr[0].monto)} por cuota</div>`;
+  if(pago400Activo){
+    h+=`<div style="font-size:13px;opacity:.7;margin-bottom:6px;padding-bottom:6px;border-bottom:0.5px solid rgba(255,255,255,.2)">Pago inicial: <b>USD 400</b></div>`;
+  }
+  h+=`<div style="font-size:22px;font-weight:700;letter-spacing:-.5px">${nCuotas} ${nCuotas===1?'cuota':'cuotas'}</div>`;
+  h+=`<div style="font-size:13px;opacity:.8;margin-top:4px">${usd2(cuotasReales[0].monto)} por cuota</div>`;
   h+=`<div style="font-size:12px;opacity:.6;margin-top:6px;border-top:0.5px solid rgba(255,255,255,.2);padding-top:8px">${rangoMeses} · Del 1 al 15 de cada mes</div>`;
   if(limiteDate)h+=`<div style="font-size:11px;opacity:.5;margin-top:4px">Último pago: ${fmt(limiteDate)}</div>`;
   h+='</div></div>';
@@ -681,6 +716,7 @@ async function descargarPDF() {
         cuotas:d.cuotas,quien_recibe:d.quien,notas:d.notas,
         metodos_pago:d.metodosPago,
         cuotas_fechas:d.cuotasFechas||null,
+        pago_inicial_400:d.pago400||false,
       })
     });
     if(resp.ok){
