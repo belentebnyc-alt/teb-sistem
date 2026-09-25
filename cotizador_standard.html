@@ -42,9 +42,9 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
 .btn-sec{background:#f5f5f0;margin-top:8px}
 .preview{background:white;border-radius:12px;border:0.5px solid #e0e0d8;overflow:hidden;position:sticky;top:24px;max-height:calc(100vh - 48px);overflow-y:auto}
 .prev-header{background:#111111;color:white;padding:18px 22px}
-.prev-title{font-size:18px;font-weight:600;letter-spacing:.02em}
-.prev-sub{font-size:11px;opacity:.6;margin-top:2px;letter-spacing:.05em;text-transform:uppercase}
-.prev-ed{font-size:12px;color:#aaaaaa;margin-top:4px;font-weight:500}
+.prev-title{font-size:18px;font-weight:600}
+.prev-sub{font-size:11px;opacity:.6;margin-top:2px;text-transform:uppercase;letter-spacing:.05em}
+.prev-ed{font-size:12px;color:#aaa;margin-top:4px;font-weight:500}
 .prev-body{padding:18px 22px}
 .p-sec{margin-bottom:16px}
 .p-sec-t{font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;border-bottom:0.5px solid #f0f0e8;padding-bottom:5px}
@@ -55,22 +55,25 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
 .p-row .val{font-weight:500}
 .p-row.total .val{color:#111111}
 .empty{text-align:center;padding:40px 20px;color:#aaa;font-size:13px}
-.calc-total{background:#f0f0f0;border:0.5px solid #cccccc;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+.calc-total{background:#f0f0f0;border:0.5px solid #ccc;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin:8px 0}
 .calc-total .label{font-size:12px;color:#444}
-.calc-total .amount{font-size:18px;font-weight:600;color:#111111}
+.calc-total .amount{font-size:18px;font-weight:600;color:#111}
 .modo-tab{flex:1;text-align:center;padding:8px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;user-select:none}
-.modo-tab.activo{border:1.5px solid #111111;background:#f0f0f0;color:#111111}
+.modo-tab.activo{border:1.5px solid #111;background:#f0f0f0;color:#111}
 .modo-tab.inactivo{border:1.5px solid #d0d0c8;background:white;color:#888}
-.freq-btn{flex:1;text-align:center;padding:8px 6px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;user-select:none;border:1.5px solid #d0d0c8;background:white;color:#888}
-.freq-btn.activo{border-color:#111111;background:#f0f0f0;color:#111111}
-.descuento-box{background:#f5f5e8;border:1.5px solid #d4c97a;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;margin-bottom:12px}
-.descuento-box.activo{background:#ebebf5;border-color:#9999cc}
-.descuento-check{width:20px;height:20px;border-radius:5px;border:2px solid #aaa;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:white;transition:all .15s}
-.descuento-box.activo .descuento-check{background:#444;border-color:#444}
-.descuento-label{font-size:12.5px;font-weight:500;color:#444}
-.descuento-val{margin-left:auto;font-size:12px;font-weight:600;color:#444}
+.freq-btn{flex:1;text-align:center;padding:8px 6px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;user-select:none}
+.freq-btn.activo{border:1.5px solid #111;background:#f0f0f0;color:#111}
+.freq-btn.inactivo{border:1.5px solid #d0d0c8;background:white;color:#888}
+.toggle-box{background:#f8f8f5;border:1.5px solid #d0d0c8;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;margin-bottom:10px}
+.toggle-box.activo{background:#f0f0f0;border-color:#111}
+.toggle-check{width:20px;height:20px;border-radius:5px;border:2px solid #ccc;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:white;transition:all .15s}
+.toggle-box.activo .toggle-check{background:#111;border-color:#111}
+.toggle-label{font-size:12.5px;font-weight:500;color:#444;flex:1}
+.toggle-val{font-size:12px;font-weight:600;color:#444}
 .pais-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;background:#f0f0f0;border:0.5px solid #d0d0c8;color:#555;margin-left:6px}
 .plan-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;margin-bottom:8px}
+.res-ok{background:#f0f0f0;border:0.5px solid #ccc;border-radius:8px;padding:10px 14px;font-size:12px;color:#333;margin-bottom:8px;line-height:1.5}
+.res-err{background:#FCEBEB;border:0.5px solid #F7C1C1;border-radius:8px;padding:10px 14px;font-size:12px;color:#791F1F;margin-bottom:8px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -78,8 +81,8 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
   <h1>TEB NYC — Cotizador de plan de pagos</h1>
   <a href="panel_teb_v10.html">← Panel</a>
 </div>
-
 <div class="main">
+  <!-- FORMULARIO -->
   <div class="card">
     <div class="card-header">
       <h2>Datos de la cotización</h2>
@@ -177,19 +180,20 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
         </div>
       </div>
 
-      <div id="bloque-descuento5" style="display:none">
-        <div class="descuento-box" id="desc5-box" onclick="toggleDesc5()">
-          <div class="descuento-check" id="desc5-check"></div>
-          <div class="descuento-label">Aplicar 5% de descuento promocional (Enero 2027)</div>
-          <div class="descuento-val" id="desc5-val"></div>
+      <!-- Descuento 5% — solo Enero 2027 -->
+      <div id="bloque-desc5" style="display:none">
+        <div class="toggle-box" id="desc5-box" onclick="toggleDesc5()">
+          <div class="toggle-check" id="desc5-check"></div>
+          <div class="toggle-label">Aplicar 5% de descuento promocional (Enero 2027)</div>
+          <div class="toggle-val" id="desc5-val"></div>
         </div>
       </div>
 
       <!-- Pago inicial USD 400 -->
-      <div class="descuento-box" id="pago400-box" onclick="togglePago400()">
-        <div class="descuento-check" id="pago400-check"></div>
-        <div class="descuento-label">Primer pago fijo de USD 400 — el resto en cuotas iguales</div>
-        <div class="descuento-val" id="pago400-val"></div>
+      <div class="toggle-box" id="p400-box" onclick="toggleP400()">
+        <div class="toggle-check" id="p400-check"></div>
+        <div class="toggle-label">Primer pago fijo de USD 400 — el resto en cuotas iguales</div>
+        <div class="toggle-val" id="p400-val"></div>
       </div>
 
       <div class="calc-total" id="calc-total" style="display:none">
@@ -208,103 +212,96 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
         <div class="form-group">
           <label>Frecuencia de pagos <span class="req">*</span></label>
           <div style="display:flex;gap:8px">
-            <div id="freq-1" class="freq-btn activo" onclick="setFrecuencia(1)">Mensual</div>
-            <div id="freq-2" class="freq-btn inactivo" onclick="setFrecuencia(2)">Bimestral</div>
-            <div id="freq-3" class="freq-btn inactivo" onclick="setFrecuencia(3)">Trimestral</div>
+            <div id="freq-1" class="freq-btn activo" onclick="setFreq(1)">Mensual</div>
+            <div id="freq-2" class="freq-btn inactivo" onclick="setFreq(2)">Bimestral</div>
+            <div id="freq-3" class="freq-btn inactivo" onclick="setFreq(3)">Trimestral</div>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label>Mes inicio <span class="req">*</span></label>
-            <select id="manual-mes-ini" onchange="actualizar()">
+            <select id="m-mes-ini" onchange="actualizar()">
               <option value="">Mes...</option>
-              <option value="0">Enero</option><option value="1">Febrero</option>
-              <option value="2">Marzo</option><option value="3">Abril</option>
-              <option value="4">Mayo</option><option value="5">Junio</option>
-              <option value="6">Julio</option><option value="7">Agosto</option>
-              <option value="8">Septiembre</option><option value="9">Octubre</option>
-              <option value="10">Noviembre</option><option value="11">Diciembre</option>
+              <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option>
+              <option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option>
+              <option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option>
+              <option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
             </select>
           </div>
           <div class="form-group">
             <label>Año inicio <span class="req">*</span></label>
-            <select id="manual-anio-ini" onchange="actualizar()">
+            <select id="m-anio-ini" onchange="actualizar()">
               <option value="">Año...</option>
               <option value="2025">2025</option><option value="2026">2026</option>
-              <option value="2027">2027</option><option value="2028">2028</option>
+              <option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option>
             </select>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label>Mes fin <span class="req">*</span></label>
-            <select id="manual-mes-fin" onchange="actualizar()">
+            <select id="m-mes-fin" onchange="actualizar()">
               <option value="">Mes...</option>
-              <option value="0">Enero</option><option value="1">Febrero</option>
-              <option value="2">Marzo</option><option value="3">Abril</option>
-              <option value="4">Mayo</option><option value="5">Junio</option>
-              <option value="6">Julio</option><option value="7">Agosto</option>
-              <option value="8">Septiembre</option><option value="9">Octubre</option>
-              <option value="10">Noviembre</option><option value="11">Diciembre</option>
+              <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option>
+              <option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option>
+              <option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option>
+              <option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
             </select>
           </div>
           <div class="form-group">
             <label>Año fin <span class="req">*</span></label>
-            <select id="manual-anio-fin" onchange="actualizar()">
+            <select id="m-anio-fin" onchange="actualizar()">
               <option value="">Año...</option>
               <option value="2025">2025</option><option value="2026">2026</option>
-              <option value="2027">2027</option><option value="2028">2028</option>
+              <option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option>
             </select>
           </div>
         </div>
-        <div id="manual-resultado" style="display:none;border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:8px;line-height:1.5"></div>
+        <div id="m-resultado" style="display:none"></div>
         <div class="form-group">
           <label>Quién emite</label>
           <input type="text" id="quien" placeholder="TEB NYC" oninput="actualizar()">
         </div>
       </div>
 
-      <!-- MODO AUTOMÁTICO -->
+      <!-- MODO AUTO -->
       <div id="bloque-auto" style="display:none">
         <div style="background:#f5f5f0;border:0.5px solid #d0d0c8;border-radius:8px;padding:10px 14px;font-size:12px;color:#555;margin-bottom:10px;line-height:1.6">
           📅 Ingresá desde qué mes empieza a pagar. La cantidad de cuotas se calcula automáticamente respetando los 45 días de anticipación.
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Mes inicio de pagos <span class="req">*</span></label>
-            <select id="auto-mes" onchange="actualizar()">
+            <label>Mes inicio <span class="req">*</span></label>
+            <select id="a-mes" onchange="actualizar()">
               <option value="">Mes...</option>
-              <option value="0">Enero</option><option value="1">Febrero</option>
-              <option value="2">Marzo</option><option value="3">Abril</option>
-              <option value="4">Mayo</option><option value="5">Junio</option>
-              <option value="6">Julio</option><option value="7">Agosto</option>
-              <option value="8">Septiembre</option><option value="9">Octubre</option>
-              <option value="10">Noviembre</option><option value="11">Diciembre</option>
+              <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option>
+              <option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option>
+              <option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option>
+              <option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
             </select>
           </div>
           <div class="form-group">
             <label>Año <span class="req">*</span></label>
-            <select id="auto-anio" onchange="actualizar()">
+            <select id="a-anio" onchange="actualizar()">
               <option value="">Año...</option>
               <option value="2025">2025</option><option value="2026">2026</option>
-              <option value="2027">2027</option><option value="2028">2028</option>
+              <option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option>
             </select>
           </div>
         </div>
-        <div id="auto-resultado" style="display:none;border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:8px;line-height:1.5"></div>
+        <div id="a-resultado" style="display:none"></div>
         <div class="form-group">
           <label>Quién emite</label>
           <input type="text" id="quien-auto" placeholder="TEB NYC" oninput="actualizar()">
         </div>
       </div>
 
-      <div class="sec-title">Métodos de pago <span id="metodos-pais-label" class="pais-tag" style="display:none"></span></div>
+      <div class="sec-title">Métodos de pago <span id="pais-tag" class="pais-tag" style="display:none"></span></div>
       <div id="metodos-grid" style="display:flex;flex-direction:column;gap:6px"></div>
       <div class="form-group" style="margin-top:10px">
         <label>Método de pago adicional (opcional)</label>
-        <input type="text" id="metodo-custom" placeholder="Ej: Pago en oficina TEB Bogotá..." oninput="actualizar()">
+        <input type="text" id="metodo-extra" placeholder="Ej: Pago en oficina TEB Bogotá..." oninput="actualizar()">
       </div>
-
       <div class="form-group">
         <label>Notas adicionales</label>
         <textarea id="notas" style="height:65px;resize:vertical" placeholder="Ej: Para confirmar la inscripción se requiere abonar la primera cuota..." oninput="actualizar()"></textarea>
@@ -333,36 +330,36 @@ body{background:#f5f5f0;color:#1a1a1a;min-height:100vh}
 
 <script>
 // ============================================================
-// CONFIGURACIÓN DE PRECIOS
+// PRECIOS — modificar aquí cuando cambien
 // ============================================================
-const PRECIOS_PROGRAMA = {
+const PRECIOS = {
   'Teatro Musical': 4280,
   'Bailarín':       3580,
   'Cantante':       3980,
   'Músico':         3750,
 };
-const PRECIOS_HOTEL = {
-  'Julio 2026':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
-  'Enero 2027':  { Economy: 0, Comfort: 1100, 'Comfort Stay+': 2303, 'Sin hotel': -400 },
-  'Julio 2027':  { Economy: 0, Comfort: 1100, 'Comfort Stay+': 3120, 'Sin hotel': -400 },
-  'Enero 2028':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
-  'Julio 2028':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
-  'Enero 2029':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
-  'Julio 2029':  { Economy: 0, Comfort: null, 'Comfort Stay+': null, 'Sin hotel': -400 },
+const HOTEL = {
+  'Julio 2026': { Economy:0, Comfort:null, 'Comfort Stay+':null, 'Sin hotel':-400 },
+  'Enero 2027': { Economy:0, Comfort:1100, 'Comfort Stay+':2303, 'Sin hotel':-400 },
+  'Julio 2027': { Economy:0, Comfort:1100, 'Comfort Stay+':3120, 'Sin hotel':-400 },
+  'Enero 2028': { Economy:0, Comfort:null, 'Comfort Stay+':null, 'Sin hotel':-400 },
+  'Julio 2028': { Economy:0, Comfort:null, 'Comfort Stay+':null, 'Sin hotel':-400 },
+  'Enero 2029': { Economy:0, Comfort:null, 'Comfort Stay+':null, 'Sin hotel':-400 },
+  'Julio 2029': { Economy:0, Comfort:null, 'Comfort Stay+':null, 'Sin hotel':-400 },
 };
-const METODOS_POR_PAIS = {
-  'Argentina': ['pesos', 'dolares', 'bofa', 'tarjeta', 'efectivo'],
-  'México':    ['pesos', 'bofa', 'tarjeta'],
-  'default':   ['bofa', 'tarjeta'],
+const METODOS_PAIS = {
+  'Argentina': ['pesos','dolares','bofa','tarjeta','efectivo'],
+  'México':    ['pesos','bofa','tarjeta'],
+  'default':   ['bofa','tarjeta'],
 };
 const EDICIONES = {
-  'Julio 2026': { inicio: new Date(2026,6,10), label: 'TEB NYC — Julio 2026' },
-  'Enero 2027': { inicio: new Date(2027,0,27), label: 'TEB NYC — Enero 2027' },
-  'Julio 2027': { inicio: new Date(2027,6,16), label: 'TEB NYC — Julio 2027' },
-  'Enero 2028': { inicio: new Date(2028,0,15), label: 'TEB NYC — Enero 2028' },
-  'Julio 2028': { inicio: new Date(2028,6,15), label: 'TEB NYC — Julio 2028' },
-  'Enero 2029': { inicio: new Date(2029,0,15), label: 'TEB NYC — Enero 2029' },
-  'Julio 2029': { inicio: new Date(2029,6,15), label: 'TEB NYC — Julio 2029' },
+  'Julio 2026': { inicio:new Date(2026,6,10), label:'TEB NYC — Julio 2026' },
+  'Enero 2027': { inicio:new Date(2027,0,27), label:'TEB NYC — Enero 2027' },
+  'Julio 2027': { inicio:new Date(2027,6,16), label:'TEB NYC — Julio 2027' },
+  'Enero 2028': { inicio:new Date(2028,0,15), label:'TEB NYC — Enero 2028' },
+  'Julio 2028': { inicio:new Date(2028,6,15), label:'TEB NYC — Julio 2028' },
+  'Enero 2029': { inicio:new Date(2029,0,15), label:'TEB NYC — Enero 2029' },
+  'Julio 2029': { inicio:new Date(2029,6,15), label:'TEB NYC — Julio 2029' },
 };
 const PLAN_DESC = {
   'Economy':      'Habitación compartida en hotel seleccionado.',
@@ -372,367 +369,383 @@ const PLAN_DESC = {
 };
 const MESES   = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MESES_G = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-const METODOS_DISPONIBLES = [
-  { id:'pesos',   label:'Transferencia en pesos',                       desc:'Sujeto al valor del dólar en el momento de cada pago', icono:'💱', texto:'Transferencia en pesos (sujeto al valor del dolar en el momento de cada pago)' },
-  { id:'dolares', label:'Transferencia en dólares',                     desc:'', icono:'💵', texto:'Transferencia en dolares' },
-  { id:'bofa',    label:'Transferencia internacional a Bank of America', desc:'', icono:'🏦', texto:'Transferencia internacional a Bank of America' },
-  { id:'tarjeta', label:'Tarjeta de crédito o débito',                  desc:'', icono:'💳', texto:'Tarjeta de credito o debito' },
-  { id:'efectivo',label:'Efectivo',                                      desc:'', icono:'💰', texto:'Efectivo' },
+const METODOS_LIST = [
+  {id:'pesos',   label:'Transferencia en pesos',                       desc:'Sujeto al valor del dólar en el momento de cada pago', icono:'💱', texto:'Transferencia en pesos (sujeto al valor del dolar en el momento de cada pago)'},
+  {id:'dolares', label:'Transferencia en dólares',                     desc:'', icono:'💵', texto:'Transferencia en dolares'},
+  {id:'bofa',    label:'Transferencia internacional a Bank of America', desc:'', icono:'🏦', texto:'Transferencia internacional a Bank of America'},
+  {id:'tarjeta', label:'Tarjeta de crédito o débito',                  desc:'', icono:'💳', texto:'Tarjeta de credito o debito'},
+  {id:'efectivo',label:'Efectivo',                                      desc:'', icono:'💰', texto:'Efectivo'},
 ];
 
-let planSeleccionado = 'Economy';
-let modoActual       = 'manual';
-let frecuenciaManual = 1;
-let desc5Activo      = false;
-let pago400Activo    = false;
-let metodosActivos   = { pesos:false, dolares:false, bofa:true, tarjeta:true, efectivo:false };
-let datosActuales    = {};
+// Estado
+var plan    = 'Economy';
+var modo    = 'manual';
+var freq    = 1;
+var desc5   = false;
+var p400    = false;
+var mActivos = {pesos:false, dolares:false, bofa:true, tarjeta:true, efectivo:false};
+var datosOK = {};
 
-// ——— FRECUENCIA ———
-function setFrecuencia(f) {
-  frecuenciaManual = f;
-  [1,2,3].forEach(n => {
-    document.getElementById('freq-'+n).className = 'freq-btn ' + (n===f ? 'activo' : 'inactivo');
-  });
+// ——— HELPERS ———
+function fmt(d)    { return d.getDate()+' de '+MESES_G[d.getMonth()]+' de '+d.getFullYear(); }
+function fmtM(d)   { return MESES[d.getMonth()]+' '+d.getFullYear(); }
+function usd(n)    { return 'USD '+Math.round(n||0).toLocaleString('es-AR'); }
+function usd2(n)   { return 'USD '+Number(n||0).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function el(id)    { return document.getElementById(id); }
+
+// ——— PLAN ———
+function selPlan(p) {
+  plan = p;
+  document.querySelectorAll('.plan-option').forEach(function(e){ e.classList.toggle('selected', e.querySelector('input').value===p); });
+  actualizarHotel();
   actualizar();
 }
 
-// ——— CALCULAR CUOTAS MANUAL (sin regla 45 días) ———
-function calcCuotasManual(mesIni, anioIni, mesFin, anioFin, frecuencia) {
-  const fechas = [];
-  let cm = mesIni, cy = anioIni;
-  const finDate = new Date(anioFin, mesFin, 15);
-  for (let i = 0; i < 120; i++) {
-    const f = new Date(cy, cm, 15);
-    if (f > finDate) break;
+function actualizarHotel() {
+  var edKey = el('edicion').value;
+  var h     = HOTEL[edKey] || {};
+  el('precio-economy').textContent     = 'Incluido';
+  el('precio-comfort').textContent     = h.Comfort!=null       ? '+ USD '+h.Comfort       : (edKey?'A confirmar':'—');
+  el('precio-comfortstay').textContent = h['Comfort Stay+']!=null ? '+ USD '+h['Comfort Stay+'] : (edKey?'A confirmar':'—');
+  el('precio-sinhotel').textContent    = '− USD 400';
+  var upEl = el('upgrade'), hintEl = el('hint-upgrade'), aviso = el('hotel-aviso');
+  if (!edKey) { upEl.value=''; upEl.readOnly=false; hintEl.textContent=''; aviso.style.display='none'; return; }
+  var precio = h[plan];
+  if (plan==='Economy') {
+    upEl.value=0; upEl.readOnly=true; hintEl.textContent='Incluido en el programa'; aviso.style.display='none';
+  } else if (precio!=null) {
+    upEl.value=precio; upEl.readOnly=true;
+    hintEl.textContent = plan==='Sin hotel' ? 'Se descuentan USD 400 del valor del programa' : 'Precio upgrade para '+edKey;
+    aviso.style.display='none';
+  } else {
+    upEl.value=''; upEl.readOnly=false; hintEl.textContent='';
+    aviso.style.display='block';
+    aviso.textContent='⚠ El precio de '+plan+' para '+edKey+' aún no está definido. Podés ingresar el valor manualmente.';
+  }
+}
+
+// ——— PROGRAMA ———
+function onProgramaChange() {
+  var prog = el('programa').value;
+  var v    = PRECIOS[prog];
+  el('valor').value = v || '';
+  el('hint-valor').textContent = v ? 'Precio base '+prog : '';
+  actualizar();
+}
+
+// ——— EDICION ———
+function onEdicionChange() {
+  var edKey = el('edicion').value;
+  el('bloque-desc5').style.display = edKey==='Enero 2027' ? 'block' : 'none';
+  if (edKey!=='Enero 2027') { desc5=false; renderDesc5(); }
+  actualizarHotel();
+  actualizar();
+}
+
+// ——— DESC 5% ———
+function toggleDesc5() { desc5=!desc5; renderDesc5(); actualizar(); }
+function renderDesc5() {
+  el('desc5-box').classList.toggle('activo', desc5);
+  el('desc5-check').textContent = desc5 ? '✓' : '';
+  var v = parseFloat(el('valor').value)||0;
+  el('desc5-val').textContent = desc5&&v>0 ? '− USD '+Math.round(v*0.05) : '';
+}
+
+// ——— PAGO 400 ———
+function toggleP400() { p400=!p400; renderP400(); actualizar(); }
+function renderP400() {
+  el('p400-box').classList.toggle('activo', p400);
+  el('p400-check').textContent = p400 ? '✓' : '';
+  el('p400-val').textContent   = p400 ? 'USD 400 + cuotas' : '';
+}
+
+// ——— PAIS ———
+function onPaisChange() {
+  var pais    = el('pais').value;
+  var lista   = METODOS_PAIS[pais] || METODOS_PAIS['default'];
+  METODOS_LIST.forEach(function(m){ mActivos[m.id] = lista.indexOf(m.id)>=0; });
+  var tag = el('pais-tag');
+  tag.style.display = pais ? 'inline' : 'none';
+  tag.textContent   = pais;
+  renderMetodos();
+  actualizar();
+}
+
+// ——— MODO ———
+function setModo(m) {
+  modo = m;
+  el('bloque-manual').style.display = m==='manual' ? 'block' : 'none';
+  el('bloque-auto').style.display   = m==='auto'   ? 'block' : 'none';
+  el('tab-manual').className = 'modo-tab '+(m==='manual'?'activo':'inactivo');
+  el('tab-auto').className   = 'modo-tab '+(m==='auto'  ?'activo':'inactivo');
+  actualizar();
+}
+
+function setFreq(f) {
+  freq = f;
+  [1,2,3].forEach(function(n){ el('freq-'+n).className = 'freq-btn '+(n===f?'activo':'inactivo'); });
+  actualizar();
+}
+
+// ——— CALCULAR CUOTAS MANUAL ———
+function cuotasManual(mIni, aIni, mFin, aFin, fr) {
+  var fechas  = [];
+  var cm = mIni, cy = aIni;
+  var fin = new Date(aFin, mFin, 15);
+  for (var i=0; i<120; i++) {
+    var f = new Date(cy, cm, 15);
+    if (f > fin) break;
     fechas.push(f);
-    cm += frecuencia;
+    cm += fr;
     while (cm > 11) { cm -= 12; cy++; }
   }
   return fechas;
 }
 
-// ——— CALCULAR CUOTAS AUTO (con regla 45 días) ———
-function calcCuotasAuto(fechaViaje, mesInicio, anioInicio) {
-  const limite = new Date(fechaViaje); limite.setDate(limite.getDate() - 45);
-  let m = limite.getMonth(), y = limite.getFullYear();
-  let ultima = new Date(y, m, 15);
-  if (ultima > limite) { m--; if (m < 0) { m = 11; y--; } ultima = new Date(y, m, 15); }
-  const inicio = new Date(anioInicio, mesInicio, 15);
-  if (inicio > ultima) return 0;
-  let cm = inicio.getMonth(), cy = inicio.getFullYear(), count = 0;
-  while (true) {
-    if (new Date(cy, cm, 15) > ultima) break;
-    count++; cm++; if (cm > 11) { cm = 0; cy++; }
+// ——— CALCULAR CUOTAS AUTO (45 días) ———
+function cuotasAutoCount(fViaje, mIni, aIni) {
+  var lim = new Date(fViaje); lim.setDate(lim.getDate()-45);
+  var m=lim.getMonth(), y=lim.getFullYear();
+  var ult = new Date(y,m,15);
+  if (ult>lim) { m--; if(m<0){m=11;y--;} ult=new Date(y,m,15); }
+  var ini = new Date(aIni, mIni, 15);
+  if (ini>ult) return {n:0, limite:ult};
+  var cm=ini.getMonth(), cy=ini.getFullYear(), n=0;
+  for (var i=0; i<200; i++) {
+    if (new Date(cy,cm,15)>ult) break;
+    n++; cm++; if(cm>11){cm=0;cy++;}
   }
-  return count;
+  return {n:n, limite:ult};
 }
 
-function calcCuotas(fechaViaje, total, n) {
-  const limite = new Date(fechaViaje); limite.setDate(limite.getDate() - 45);
-  let m = limite.getMonth(), y = limite.getFullYear();
-  let cand = new Date(y, m, 15);
-  if (cand > limite) { m--; if (m < 0) { m = 11; y--; } cand = new Date(y, m, 15); }
-  const fechas = []; let cm = cand.getMonth(), cy = cand.getFullYear();
-  for (let i = 0; i < n; i++) { fechas.push(new Date(cy, cm, 15)); cm--; if (cm < 0) { cm = 11; cy--; } }
+function cuotasAutoFechas(fViaje, n) {
+  var lim = new Date(fViaje); lim.setDate(lim.getDate()-45);
+  var m=lim.getMonth(), y=lim.getFullYear();
+  var cand = new Date(y,m,15);
+  if (cand>lim) { m--; if(m<0){m=11;y--;} cand=new Date(y,m,15); }
+  var fechas=[], cm=cand.getMonth(), cy=cand.getFullYear();
+  for (var i=0; i<n; i++) { fechas.push(new Date(cy,cm,15)); cm--; if(cm<0){cm=11;cy--;} }
   fechas.reverse();
-  const base = Math.round(total / n), ult = total - base * (n - 1);
-  return { cuotas: fechas.map((f,i) => ({ n:i+1, fecha:f, monto:i===n-1?ult:base, ultima:i===n-1 })), limite: cand };
+  return {fechas:fechas, limite:cand};
 }
 
-// ——— PLAN DE HOSPEDAJE ———
-function selPlan(p) {
-  planSeleccionado = p;
-  document.querySelectorAll('.plan-option').forEach(el => {
-    el.classList.toggle('selected', el.querySelector('input').value === p);
-  });
-  actualizarUpgradeHotel();
-  actualizar();
-}
-
-function actualizarUpgradeHotel() {
-  const edKey = document.getElementById('edicion').value;
-  const upEl  = document.getElementById('upgrade');
-  const hintU = document.getElementById('hint-upgrade');
-  const aviso = document.getElementById('hotel-aviso');
-  const ed    = PRECIOS_HOTEL[edKey] || {};
-  document.getElementById('precio-economy').textContent     = 'Incluido';
-  document.getElementById('precio-comfort').textContent     = ed.Comfort != null       ? '+ USD '+ed.Comfort       : edKey ? 'A confirmar' : '—';
-  document.getElementById('precio-comfortstay').textContent = ed['Comfort Stay+'] != null ? '+ USD '+ed['Comfort Stay+'] : edKey ? 'A confirmar' : '—';
-  document.getElementById('precio-sinhotel').textContent    = '− USD 400';
-  if (!edKey) { upEl.value=''; upEl.readOnly=false; hintU.textContent=''; aviso.style.display='none'; return; }
-  const precio = ed[planSeleccionado];
-  if (planSeleccionado === 'Economy') {
-    upEl.value=0; upEl.readOnly=true; hintU.textContent='Incluido en el programa'; aviso.style.display='none';
-  } else if (precio != null) {
-    upEl.value=precio; upEl.readOnly=true;
-    hintU.textContent = planSeleccionado==='Sin hotel' ? 'Se descuentan USD 400 del valor del programa' : 'Precio del upgrade para '+edKey;
-    aviso.style.display='none';
-  } else {
-    upEl.value=''; upEl.readOnly=false; hintU.textContent='';
-    aviso.style.display='block';
-    aviso.textContent='⚠ El precio de '+planSeleccionado+' para '+edKey+' aún no está definido. Podés ingresar el valor manualmente.';
-  }
-  actualizar();
-}
-
-function onProgramaChange() {
-  const prog = document.getElementById('programa').value;
-  const val  = PRECIOS_PROGRAMA[prog];
-  document.getElementById('valor').value = val || '';
-  document.getElementById('hint-valor').textContent = val ? 'Precio base '+prog : '';
-  actualizar();
-}
-
-function onEdicionChange() {
-  const edKey = document.getElementById('edicion').value;
-  document.getElementById('bloque-descuento5').style.display = edKey==='Enero 2027' ? 'block' : 'none';
-  if (edKey !== 'Enero 2027') { desc5Activo=false; renderDesc5(); }
-  actualizarUpgradeHotel();
-  actualizar();
-}
-
-function toggleDesc5() { desc5Activo=!desc5Activo; renderDesc5(); actualizar(); }
-function renderDesc5() {
-  const box=document.getElementById('desc5-box'), check=document.getElementById('desc5-check'), val=document.getElementById('desc5-val');
-  box.classList.toggle('activo', desc5Activo);
-  check.textContent = desc5Activo ? '✓' : '';
-  const v = parseFloat(document.getElementById('valor').value)||0;
-  val.textContent = desc5Activo&&v>0 ? '− USD '+Math.round(v*0.05) : '';
-}
-
-function togglePago400() { pago400Activo=!pago400Activo; renderPago400(); actualizar(); }
-function renderPago400() {
-  const box=document.getElementById('pago400-box');
-  const check=document.getElementById('pago400-check');
-  const val=document.getElementById('pago400-val');
-  box.classList.toggle('activo', pago400Activo);
-  check.textContent = pago400Activo ? '✓' : '';
-  val.textContent = pago400Activo ? 'USD 400 + cuotas' : '';
-}
-
-function onPaisChange() {
-  const pais = document.getElementById('pais').value;
-  const metodos = METODOS_POR_PAIS[pais] || METODOS_POR_PAIS['default'];
-  METODOS_DISPONIBLES.forEach(m => { metodosActivos[m.id] = metodos.includes(m.id); });
-  const label = document.getElementById('metodos-pais-label');
-  label.style.display = pais ? 'inline' : 'none';
-  label.textContent = pais;
-  renderMetodosGrid(); actualizar();
-}
-
-function setModo(modo) {
-  modoActual = modo;
-  document.getElementById('bloque-manual').style.display = modo==='manual' ? 'block' : 'none';
-  document.getElementById('bloque-auto').style.display   = modo==='auto'   ? 'block' : 'none';
-  document.getElementById('tab-manual').className = 'modo-tab '+(modo==='manual'?'activo':'inactivo');
-  document.getElementById('tab-auto').className   = 'modo-tab '+(modo==='auto'  ?'activo':'inactivo');
-  actualizar();
-}
-
-function renderMetodosGrid() {
-  const cont = document.getElementById('metodos-grid'); cont.innerHTML='';
-  METODOS_DISPONIBLES.forEach(m => {
-    const activo = metodosActivos[m.id];
-    const fila = document.createElement('div');
-    fila.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid '+(activo?'#111111':'#d0d0c8')+';border-radius:8px;cursor:pointer;background:'+(activo?'#f0f0f0':'#ffffff')+';transition:all .15s';
-    const check=document.createElement('div');
-    check.style.cssText='width:20px;height:20px;border-radius:5px;border:2px solid '+(activo?'#111111':'#cccccc')+';background:'+(activo?'#111111':'white')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:white';
-    check.textContent=activo?'✓':'';
-    const textos=document.createElement('div'); textos.style.flex='1';
-    const titulo=document.createElement('div');
-    titulo.style.cssText='font-size:12.5px;font-weight:500;color:'+(activo?'#111111':'#444444');
-    titulo.textContent=m.icono+' '+m.label; textos.appendChild(titulo);
-    if(m.desc){const d=document.createElement('div');d.style.cssText='font-size:10.5px;color:#888;margin-top:1px';d.textContent=m.desc;textos.appendChild(d);}
-    fila.appendChild(check); fila.appendChild(textos);
-    fila.addEventListener('click',()=>{metodosActivos[m.id]=!metodosActivos[m.id];renderMetodosGrid();actualizar();});
+// ——— METODOS ———
+function renderMetodos() {
+  var cont = el('metodos-grid'); cont.innerHTML='';
+  METODOS_LIST.forEach(function(m) {
+    var activo = mActivos[m.id];
+    var fila = document.createElement('div');
+    fila.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid '+(activo?'#111':'#d0d0c8')+';border-radius:8px;cursor:pointer;background:'+(activo?'#f0f0f0':'white')+';transition:all .15s';
+    var chk = document.createElement('div');
+    chk.style.cssText = 'width:20px;height:20px;border-radius:5px;border:2px solid '+(activo?'#111':'#ccc')+';background:'+(activo?'#111':'white')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:white';
+    chk.textContent = activo?'✓':'';
+    var txt = document.createElement('div'); txt.style.flex='1';
+    var tit = document.createElement('div');
+    tit.style.cssText = 'font-size:12.5px;font-weight:500;color:'+(activo?'#111':'#444');
+    tit.textContent = m.icono+' '+m.label; txt.appendChild(tit);
+    if (m.desc) { var d=document.createElement('div'); d.style.cssText='font-size:10.5px;color:#888;margin-top:1px'; d.textContent=m.desc; txt.appendChild(d); }
+    fila.appendChild(chk); fila.appendChild(txt);
+    fila.addEventListener('click', (function(id){ return function(){ mActivos[id]=!mActivos[id]; renderMetodos(); actualizar(); }; })(m.id));
     cont.appendChild(fila);
   });
 }
 
-function metodosSeleccionados() { return METODOS_DISPONIBLES.filter(m=>metodosActivos[m.id]).map(m=>m.texto); }
-function fmt(d)    { return `${d.getDate()} de ${MESES_G[d.getMonth()]} de ${d.getFullYear()}`; }
-function fmtMes(d) { return `${MESES[d.getMonth()]} ${d.getFullYear()}`; }
-function usd(n)    { return 'USD '+Math.round(n||0).toLocaleString('es-AR'); }
-function usd2(n)   { return 'USD '+Number(n||0).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function getMetodos() { return METODOS_LIST.filter(function(m){ return mActivos[m.id]; }).map(function(m){ return m.texto; }); }
 
+// ——— ACTUALIZAR ———
 function actualizar() {
-  const nombre  = document.getElementById('nombre').value.trim();
-  const programa= document.getElementById('programa').value;
-  const edKey   = document.getElementById('edicion').value;
-  const pais    = document.getElementById('pais').value;
-  const valor   = parseFloat(document.getElementById('valor').value)||0;
-  const desc    = parseFloat(document.getElementById('descuento').value)||0;
-  const upgrade = parseFloat(document.getElementById('upgrade').value)||0;
-  const reprog  = parseFloat(document.getElementById('reprog').value)||0;
-  const notas   = document.getElementById('notas').value;
-  const desc5   = desc5Activo&&edKey==='Enero 2027' ? Math.round(valor*0.05) : 0;
-  renderDesc5();
-  const total = valor-desc-desc5+upgrade+reprog;
+  try {
+    var nombre  = el('nombre').value.trim();
+    var programa= el('programa').value;
+    var edKey   = el('edicion').value;
+    var paisVal = el('pais').value;
+    var valor   = parseFloat(el('valor').value)||0;
+    var descV   = parseFloat(el('descuento').value)||0;
+    var upgradeV= parseFloat(el('upgrade').value)||0;
+    var reprogV = parseFloat(el('reprog').value)||0;
+    var notasV  = el('notas').value;
+    var desc5V  = desc5 && edKey==='Enero 2027' ? Math.round(valor*0.05) : 0;
+    renderDesc5();
+    var total = valor - descV - desc5V + upgradeV + reprogV;
 
-  if(valor>0){document.getElementById('calc-total').style.display='flex';document.getElementById('calc-total-val').textContent=usd(total);}
-  else document.getElementById('calc-total').style.display='none';
+    if (valor>0) { el('calc-total').style.display='flex'; el('calc-total-val').textContent=usd(total); }
+    else el('calc-total').style.display='none';
 
-  let nCuotas=0, quien='TEB NYC', cuotasArr=[], limiteDate=null, fechasManual=[];
+    var nCuotas=0, quien='TEB NYC', fechas=[], limiteDate=null;
 
-  if (modoActual==='manual') {
-    const mesIni  = document.getElementById('manual-mes-ini').value;
-    const anioIni = document.getElementById('manual-anio-ini').value;
-    const mesFin  = document.getElementById('manual-mes-fin').value;
-    const anioFin = document.getElementById('manual-anio-fin').value;
-    quien = document.getElementById('quien').value||'TEB NYC';
-    const resDiv = document.getElementById('manual-resultado');
-    if (mesIni!==''&&anioIni&&mesFin!==''&&anioFin) {
-      fechasManual = calcCuotasManual(parseInt(mesIni),parseInt(anioIni),parseInt(mesFin),parseInt(anioFin),frecuenciaManual);
-      nCuotas = fechasManual.length;
-      if (nCuotas>0) {
-        resDiv.style.cssText='display:block;background:#f0f0f0;border:0.5px solid #cccccc;border-radius:8px;padding:10px 14px;font-size:12px;color:#333;margin-bottom:8px;line-height:1.5';
-        const freqLabel = frecuenciaManual===1?'mensuales':frecuenciaManual===2?'bimestrales':'trimestrales';
-        resDiv.innerHTML='✅ <b>'+nCuotas+' cuotas</b> '+freqLabel+' — '+MESES[parseInt(mesIni)]+' '+anioIni+' a '+MESES[parseInt(mesFin)]+' '+anioFin;
-      } else {
-        resDiv.style.cssText='display:block;background:#FCEBEB;border:0.5px solid #F7C1C1;border-radius:8px;padding:10px 14px;font-size:12px;color:#791F1F;margin-bottom:8px;line-height:1.5';
-        resDiv.innerHTML='⚠ La fecha fin debe ser posterior a la fecha inicio.';
-      }
-      resDiv.style.display='block';
-    } else { document.getElementById('manual-resultado').style.display='none'; }
-
-    if (nCuotas>0&&valor>0) {
-      const resto = pago400Activo ? total-400 : total;
-      const base=Math.round(resto/nCuotas), ult=resto-base*(nCuotas-1);
-      cuotasArr=fechasManual.map((f,i)=>({n:i+1,fecha:f,monto:i===nCuotas-1?ult:base,ultima:i===nCuotas-1}));
-      if (pago400Activo) { const fi=fechasManual[0]; cuotasArr.unshift({n:0,fecha:fi,monto:400,inicial:true}); }
-      limiteDate=fechasManual[fechasManual.length-1];
+    if (modo==='manual') {
+      var mIni  = el('m-mes-ini').value;
+      var aIni  = el('m-anio-ini').value;
+      var mFin  = el('m-mes-fin').value;
+      var aFin  = el('m-anio-fin').value;
+      quien = el('quien').value||'TEB NYC';
+      var resDiv = el('m-resultado');
+      if (mIni!=='' && aIni && mFin!=='' && aFin) {
+        fechas   = cuotasManual(parseInt(mIni), parseInt(aIni), parseInt(mFin), parseInt(aFin), freq);
+        nCuotas  = fechas.length;
+        limiteDate = nCuotas>0 ? fechas[nCuotas-1] : null;
+        if (nCuotas>0) {
+          var fLabel = freq===1?'mensuales':freq===2?'bimestrales':'trimestrales';
+          resDiv.className='res-ok'; resDiv.style.display='block';
+          resDiv.innerHTML='✅ <b>'+nCuotas+' cuotas</b> '+fLabel+' — '+MESES[parseInt(mIni)]+' '+aIni+' a '+MESES[parseInt(mFin)]+' '+aFin;
+        } else {
+          resDiv.className='res-err'; resDiv.style.display='block';
+          resDiv.innerHTML='⚠ La fecha fin debe ser posterior a la fecha inicio.';
+        }
+      } else { resDiv.style.display='none'; }
+    } else {
+      var aMes  = el('a-mes').value;
+      var aAnio = el('a-anio').value;
+      quien = el('quien-auto').value||'TEB NYC';
+      var resDiv2 = el('a-resultado');
+      if (aMes!=='' && aAnio && edKey && EDICIONES[edKey]) {
+        var res = cuotasAutoCount(EDICIONES[edKey].inicio, parseInt(aMes), parseInt(aAnio));
+        nCuotas = res.n;
+        resDiv2.style.display='block';
+        if (nCuotas>0) {
+          resDiv2.className='res-ok';
+          resDiv2.innerHTML='✅ <b>'+nCuotas+' cuotas</b> desde '+MESES[parseInt(aMes)]+' '+aAnio+' hasta 45 días antes del viaje.';
+          var resF = cuotasAutoFechas(EDICIONES[edKey].inicio, nCuotas);
+          fechas     = resF.fechas;
+          limiteDate = resF.limite;
+        } else {
+          resDiv2.className='res-err';
+          resDiv2.innerHTML='⚠ La fecha de inicio es posterior al límite de pagos. Elegí un mes anterior.';
+        }
+      } else { resDiv2.style.display='none'; }
     }
-  } else {
-    // modo auto
-    const autoMes=document.getElementById('auto-mes').value;
-    const autoAnio=document.getElementById('auto-anio').value;
-    quien=document.getElementById('quien-auto').value||'TEB NYC';
-    const resDiv=document.getElementById('auto-resultado');
-    if(autoMes!==''&&autoAnio&&edKey){
-      nCuotas=calcCuotasAuto(EDICIONES[edKey].inicio,parseInt(autoMes),parseInt(autoAnio));
-      resDiv.style.display='block';
-      if(nCuotas>0){
-        resDiv.style.cssText='display:block;background:#f0f0f0;border:0.5px solid #cccccc;border-radius:8px;padding:10px 14px;font-size:12px;color:#333;margin-bottom:8px;line-height:1.5';
-        resDiv.innerHTML='✅ <b>'+nCuotas+' cuotas</b> desde '+MESES[parseInt(autoMes)]+' '+autoAnio+' hasta 45 días antes del viaje.';
-      } else {
-        resDiv.style.cssText='display:block;background:#FCEBEB;border:0.5px solid #F7C1C1;border-radius:8px;padding:10px 14px;font-size:12px;color:#791F1F;margin-bottom:8px;line-height:1.5';
-        resDiv.innerHTML='⚠ La fecha de inicio es posterior al límite de pagos. Elegí un mes anterior.';
-      }
-    } else { resDiv.style.display='none'; }
-    if(nCuotas>0&&edKey&&valor>0){
-      const resto = pago400Activo ? total-400 : total;
-      const res=calcCuotas(EDICIONES[edKey].inicio,resto,nCuotas);
-      cuotasArr=res.cuotas; limiteDate=res.limite;
-      if (pago400Activo) { const fi=cuotasArr[0].fecha; cuotasArr.unshift({n:0,fecha:fi,monto:400,inicial:true}); }
+
+    var prev   = el('prev-body');
+    var prevEd = el('prev-ed');
+
+    if (!nombre || !programa || !edKey || !valor || nCuotas===0 || fechas.length===0) {
+      prev.innerHTML='<div class="empty">Completá todos los campos obligatorios para ver la cotización.</div>';
+      prevEd.textContent=''; return;
     }
+
+    // Calcular montos
+    var resto  = p400 ? total-400 : total;
+    var base   = Math.round(resto/nCuotas);
+    var ult    = resto - base*(nCuotas-1);
+    var cuotasArr = fechas.map(function(f,i){ return {n:i+1, fecha:f, monto:(i===nCuotas-1?ult:base), ultima:i===nCuotas-1}; });
+
+    var metodoExtra = el('metodo-extra').value.trim();
+    var metodos = getMetodos();
+    if (metodoExtra) metodos.push(metodoExtra);
+
+    datosOK = {
+      nombre:nombre, programa:programa, edicion:edKey, pais:paisVal,
+      plan:plan, valor:valor, descuento:descV, descuento5:desc5V,
+      upgrade:upgradeV, reprogramacion:reprogV, cuotas:nCuotas,
+      quien:quien, notas:notasV, total:total, metodosPago:metodos,
+      p400:p400, limite:limiteDate,
+      fechasCuotas: modo==='manual' ? fechas.map(function(f){ return f.toISOString().split('T')[0]; }) : null,
+    };
+
+    prevEd.textContent = EDICIONES[edKey] ? EDICIONES[edKey].label : '';
+
+    var PS = {
+      Economy:      {bg:'#f5f5f0',color:'#444',bdr:'#d0d0c8'},
+      Comfort:      {bg:'#f0f0f8',color:'#333',bdr:'#c0c0d8'},
+      'Comfort Stay+':{bg:'#eeeefc',color:'#222',bdr:'#b0b0cc'},
+      'Sin hotel':  {bg:'#f5f5f0',color:'#666',bdr:'#e0e0d8'}
+    };
+    var ps = PS[plan] || PS.Economy;
+    var h  = '';
+
+    // Alumno
+    h += '<div class="p-sec"><div class="p-sec-t">Alumno</div>';
+    h += '<div class="p-row"><span class="lbl">Nombre</span><span class="val">'+nombre+'</span></div>';
+    h += '<div class="p-row"><span class="lbl">Programa</span><span class="val">'+programa+'</span></div>';
+    h += '<div class="p-row"><span class="lbl">Edición</span><span class="val">'+edKey+'</span></div>';
+    if (paisVal) h += '<div class="p-row"><span class="lbl">País</span><span class="val">'+paisVal+'</span></div>';
+    h += '</div>';
+
+    // Plan hospedaje
+    h += '<div class="p-sec"><div class="p-sec-t">Plan de hospedaje</div>';
+    h += '<div class="plan-badge" style="background:'+ps.bg+';color:'+ps.color+';border:1px solid '+ps.bdr+'">'+plan+'</div>';
+    h += '<div style="font-size:12px;color:#888">'+(PLAN_DESC[plan]||'')+'</div>';
+    h += '</div>';
+
+    // Detalle económico
+    h += '<div class="p-sec"><div class="p-sec-t">Detalle económico</div>';
+    h += '<div class="p-row"><span class="lbl">Valor del programa</span><span class="val">'+usd(valor)+'</span></div>';
+    if (descV>0)    h += '<div class="p-row"><span class="lbl">Beca / descuento</span><span class="val" style="color:#555">− '+usd(descV)+'</span></div>';
+    if (desc5V>0)   h += '<div class="p-row"><span class="lbl">Descuento 5% Enero 2027</span><span class="val" style="color:#555">− '+usd(desc5V)+'</span></div>';
+    if (upgradeV>0) h += '<div class="p-row"><span class="lbl">Ajuste hospedaje</span><span class="val">+ '+usd(upgradeV)+'</span></div>';
+    if (upgradeV<0) h += '<div class="p-row"><span class="lbl">Descuento sin hotel</span><span class="val" style="color:#555">− '+usd(Math.abs(upgradeV))+'</span></div>';
+    if (reprogV>0)  h += '<div class="p-row"><span class="lbl">Reprogramación</span><span class="val" style="color:#791F1F">+ '+usd(reprogV)+'</span></div>';
+    h += '<div class="p-row total"><span class="lbl">TOTAL A ABONAR</span><span class="val">'+usd(total)+'</span></div>';
+    h += '</div>';
+
+    // Plan de pagos
+    var primerMes = fmtM(cuotasArr[0].fecha);
+    var ultimoMes = fmtM(cuotasArr[cuotasArr.length-1].fecha);
+    var rango     = nCuotas===1 ? primerMes : primerMes+' a '+ultimoMes;
+    h += '<div class="p-sec"><div class="p-sec-t">Plan de pagos</div>';
+    h += '<div style="background:#111;color:white;border-radius:10px;padding:16px 18px;margin-bottom:10px">';
+    if (p400) {
+      h += '<div style="font-size:12px;opacity:.7;margin-bottom:8px;padding-bottom:8px;border-bottom:0.5px solid rgba(255,255,255,.2)">Pago inicial: <b>USD 400</b> — '+fmtM(cuotasArr[0].fecha)+'</div>';
+    }
+    h += '<div style="font-size:22px;font-weight:700;letter-spacing:-.5px">'+nCuotas+(nCuotas===1?' cuota':' cuotas')+'</div>';
+    h += '<div style="font-size:13px;opacity:.8;margin-top:4px">'+usd2(cuotasArr[0].monto)+' por cuota</div>';
+    h += '<div style="font-size:12px;opacity:.6;margin-top:6px;border-top:0.5px solid rgba(255,255,255,.2);padding-top:8px">'+rango+' · Del 1 al 15 de cada mes</div>';
+    if (limiteDate) h += '<div style="font-size:11px;opacity:.5;margin-top:4px">Último pago: '+fmt(limiteDate)+'</div>';
+    h += '</div></div>';
+
+    // Medios de pago
+    h += '<div class="p-sec"><div class="p-sec-t">Medios de pago</div>';
+    if (metodos.length) {
+      h += '<div style="display:flex;flex-wrap:wrap;gap:5px;font-size:12px">';
+      metodos.forEach(function(m){ h += '<span style="background:#f5f5f0;padding:3px 10px;border-radius:20px;border:0.5px solid #e0e0d8">'+m+'</span>'; });
+      h += '</div>';
+    } else h += '<div style="font-size:12px;color:#aaa">Ningún método seleccionado.</div>';
+    h += '</div>';
+
+    if (notasV) h += '<div style="background:#f5f5f0;border-radius:8px;padding:10px 14px;font-size:12px;color:#555;border:0.5px solid #d0d0c8;margin-top:8px;font-style:italic">'+notasV+'</div>';
+    h += '<div style="margin-top:16px;padding-top:12px;border-top:0.5px solid #e0e0d8;font-size:10px;color:#aaa;line-height:1.6">Tu Experiencia Broadway, Inc. · 20801 Biscayne Blvd, Suite 403, PMB 1006, Aventura, Florida, 33180, Estados Unidos</div>';
+    h += '<div style="margin-top:8px;font-size:11px;color:#aaa;text-align:center">Emitido el '+fmt(new Date())+' por '+quien+' · Válida 15 días</div>';
+    prev.innerHTML = h;
+  } catch(e) {
+    console.error('Error en actualizar:', e);
   }
-
-  const prev=document.getElementById('prev-body');
-  const prevEd=document.getElementById('prev-ed');
-  const cuotasReales = cuotasArr.filter(c => !c.inicial);
-  if(!nombre||!programa||!edKey||!valor||nCuotas===0||cuotasReales.length===0){
-    prev.innerHTML='<div class="empty">Completá todos los campos obligatorios para ver la cotización.</div>';
-    prevEd.textContent=''; return;
-  }
-
-  const ed=EDICIONES[edKey];
-  prevEd.textContent=ed?ed.label:'';
-  const metodoCustom=document.getElementById('metodo-custom').value.trim();
-  const metodos=metodosSeleccionados();
-  if(metodoCustom)metodos.push(metodoCustom);
-
-  datosActuales={nombre,programa,edicion:edKey,pais,plan:planSeleccionado,valor,descuento:desc,descuento5:desc5,upgrade,reprogramacion:reprog,cuotas:nCuotas,quien,notas,total,metodosPago:metodos,
-    cuotasFechas: modoActual==='manual' ? fechasManual.map(f=>f.toISOString().split('T')[0]) : null,
-    pago400: pago400Activo,
-    fechaLimite: limiteDate, fechaViaje: ed.inicio};
-
-  const PS={Economy:{bg:'#f5f5f0',color:'#444',border:'#d0d0c8'},Comfort:{bg:'#f0f0f8',color:'#333',border:'#c0c0d8'},'Comfort Stay+':{bg:'#f0f0f8',color:'#222',border:'#b0b0cc'},'Sin hotel':{bg:'#f5f5f0',color:'#666',border:'#e0e0d8'}};
-  const ps=PS[planSeleccionado]||PS.Economy;
-  let h='';
-
-  h+='<div class="p-sec"><div class="p-sec-t">Alumno</div>';
-  h+=`<div class="p-row"><span class="lbl">Nombre</span><span class="val">${nombre}</span></div>`;
-  h+=`<div class="p-row"><span class="lbl">Programa</span><span class="val">${programa}</span></div>`;
-  h+=`<div class="p-row"><span class="lbl">Edición</span><span class="val">${edKey}</span></div>`;
-  if(pais)h+=`<div class="p-row"><span class="lbl">País</span><span class="val">${pais}</span></div>`;
-  h+='</div>';
-
-  h+='<div class="p-sec"><div class="p-sec-t">Plan de hospedaje</div>';
-  h+=`<div class="plan-badge" style="background:${ps.bg};color:${ps.color};border:1px solid ${ps.border}">${planSeleccionado}</div>`;
-  h+=`<div style="font-size:12px;color:#888">${PLAN_DESC[planSeleccionado]||''}</div>`;
-  h+='</div>';
-
-  h+='<div class="p-sec"><div class="p-sec-t">Detalle económico</div>';
-  h+=`<div class="p-row"><span class="lbl">Valor del programa</span><span class="val">${usd(valor)}</span></div>`;
-  if(desc>0)h+=`<div class="p-row"><span class="lbl">Beca / descuento</span><span class="val" style="color:#555">− ${usd(desc)}</span></div>`;
-  if(desc5>0)h+=`<div class="p-row"><span class="lbl">Descuento 5% Enero 2027</span><span class="val" style="color:#555">− ${usd(desc5)}</span></div>`;
-  if(upgrade>0)h+=`<div class="p-row"><span class="lbl">Ajuste hospedaje</span><span class="val" style="color:#333">+ ${usd(upgrade)}</span></div>`;
-  if(upgrade<0)h+=`<div class="p-row"><span class="lbl">Descuento sin hotel</span><span class="val" style="color:#555">− ${usd(Math.abs(upgrade))}</span></div>`;
-  if(reprog>0)h+=`<div class="p-row"><span class="lbl">Reprogramación</span><span class="val" style="color:#791F1F">+ ${usd(reprog)}</span></div>`;
-  h+=`<div class="p-row total"><span class="lbl">TOTAL A ABONAR</span><span class="val">${usd(total)}</span></div>`;
-  h+='</div>';
-
-  const primerMes=fmtMes(cuotasReales[0].fecha);
-  const ultimoMes=fmtMes(cuotasReales[cuotasReales.length-1].fecha);
-  const rangoMeses=nCuotas===1?primerMes:`${primerMes} a ${ultimoMes}`;
-  h+='<div class="p-sec"><div class="p-sec-t">Plan de pagos</div>';
-  h+=`<div style="background:#111111;color:white;border-radius:10px;padding:16px 18px;margin-bottom:10px">`;
-  if(pago400Activo){
-    h+=`<div style="font-size:13px;opacity:.7;margin-bottom:6px;padding-bottom:6px;border-bottom:0.5px solid rgba(255,255,255,.2)">Pago inicial: <b>USD 400</b></div>`;
-  }
-  h+=`<div style="font-size:22px;font-weight:700;letter-spacing:-.5px">${nCuotas} ${nCuotas===1?'cuota':'cuotas'}</div>`;
-  h+=`<div style="font-size:13px;opacity:.8;margin-top:4px">${usd2(cuotasReales[0].monto)} por cuota</div>`;
-  h+=`<div style="font-size:12px;opacity:.6;margin-top:6px;border-top:0.5px solid rgba(255,255,255,.2);padding-top:8px">${rangoMeses} · Del 1 al 15 de cada mes</div>`;
-  if(limiteDate)h+=`<div style="font-size:11px;opacity:.5;margin-top:4px">Último pago: ${fmt(limiteDate)}</div>`;
-  h+='</div></div>';
-
-  h+='<div class="p-sec"><div class="p-sec-t">Medios de pago</div>';
-  if(metodos.length){
-    h+='<div style="display:flex;flex-wrap:wrap;gap:5px;font-size:12px">';
-    metodos.forEach(m=>{h+=`<span style="background:#f5f5f0;padding:3px 10px;border-radius:20px;border:0.5px solid #e0e0d8">${m}</span>`;});
-    h+='</div>';
-  } else h+='<div style="font-size:12px;color:#aaa">Ningún método seleccionado.</div>';
-  h+='</div>';
-
-  if(notas)h+=`<div style="background:#f5f5f0;border-radius:8px;padding:10px 14px;font-size:12px;color:#555;border:0.5px solid #d0d0c8;margin-top:8px;font-style:italic">${notas}</div>`;
-  h+=`<div style="margin-top:16px;padding-top:12px;border-top:0.5px solid #e0e0d8;font-size:10px;color:#aaa;line-height:1.6">Tu Experiencia Broadway, Inc. · 20801 Biscayne Blvd, Suite 403, PMB 1006, Aventura, Florida, 33180, Estados Unidos</div>`;
-  h+=`<div style="margin-top:8px;font-size:11px;color:#aaa;text-align:center">Emitido el ${fmt(new Date())} por ${quien} · Válida 15 días</div>`;
-  prev.innerHTML=h;
 }
 
+// ——— PDF ———
 async function descargarPDF() {
-  const d=datosActuales;
-  if(!d.nombre){document.getElementById('alert-form').innerHTML='<div style="background:#FCEBEB;color:#791F1F;padding:10px;border-radius:6px;font-size:13px">Completá todos los campos primero.</div>';return;}
-  const btn=document.querySelector('.btn-primary');
-  btn.textContent='⏳ Generando...';btn.disabled=true;
-  try{
-    const resp=await fetch('/api/generar-cotizacion',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        nombre:d.nombre,programa:d.programa,edicion:d.edicion,pais:d.pais,
-        plan:d.plan,valor_programa:d.valor,descuento:d.descuento,
-        descuento5:d.descuento5,upgrade:d.upgrade,reprogramacion:d.reprogramacion,
-        cuotas:d.cuotas,quien_recibe:d.quien,notas:d.notas,
-        metodos_pago:d.metodosPago,
-        cuotas_fechas:d.cuotasFechas||null,
-        pago_inicial_400:d.pago400||false,
+  if (!datosOK.nombre) {
+    el('alert-form').innerHTML='<div style="background:#FCEBEB;color:#791F1F;padding:10px;border-radius:6px;font-size:13px">Completá todos los campos primero.</div>';
+    return;
+  }
+  var d = datosOK;
+  var btn = document.querySelector('.btn-primary');
+  btn.textContent='⏳ Generando...'; btn.disabled=true;
+  try {
+    var resp = await fetch('/api/generar-cotizacion',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        nombre:d.nombre, programa:d.programa, edicion:d.edicion, pais:d.pais,
+        plan:d.plan, valor_programa:d.valor, descuento:d.descuento,
+        descuento5:d.descuento5, upgrade:d.upgrade, reprogramacion:d.reprogramacion,
+        cuotas:d.cuotas, quien_recibe:d.quien, notas:d.notas,
+        metodos_pago:d.metodosPago, cuotas_fechas:d.fechasCuotas||null,
+        pago_inicial_400:d.p400||false,
       })
     });
-    if(resp.ok){
-      const blob=await resp.blob();
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url;a.download=`TEB_${d.nombre.replace(/\s+/g,'_')}_${d.edicion.replace(' ','_')}.pdf`;
-      a.click();URL.revokeObjectURL(url);
+    if (resp.ok) {
+      var blob = await resp.blob();
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href=url; a.download='TEB_'+d.nombre.replace(/\s+/g,'_')+'_'+d.edicion.replace(' ','_')+'.pdf';
+      a.click(); URL.revokeObjectURL(url);
     } else throw new Error();
-  }catch(err){
-    document.getElementById('alert-form').innerHTML=`<div style="background:#FCEBEB;color:#791F1F;padding:10px 14px;border-radius:6px;font-size:12px;line-height:1.5"><b>Error al generar el PDF.</b> Probá de nuevo en unos segundos.</div>`;
+  } catch(e) {
+    el('alert-form').innerHTML='<div style="background:#FCEBEB;color:#791F1F;padding:10px 14px;border-radius:6px;font-size:12px;line-height:1.5"><b>Error al generar el PDF.</b> Probá de nuevo en unos segundos.</div>';
   }
-  btn.textContent='⬇ Descargar PDF';btn.disabled=false;
+  btn.textContent='⬇ Descargar PDF'; btn.disabled=false;
 }
 
-renderMetodosGrid();
+renderMetodos();
 </script>
 </body>
 </html>
