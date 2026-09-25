@@ -121,8 +121,7 @@ def generar_pdf(datos):
         base      = round(total_cuotas / n_cuotas, 0)
         ult       = round(total_cuotas - base * (n_cuotas - 1), 0)
         cuotas    = [{'n':i+1,'fecha':f,'monto':(ult if i==n_cuotas-1 else base),'ultima':i==n_cuotas-1} for i,f in enumerate(fechas_manual)]
-        fecha_lim = fechas_manual[-1]
-    else:
+        fecha_lim = fechas_manual[-1]    else:
         cuotas, fecha_lim = calcular_cuotas(fv, total_cuotas, n_cuotas)
 
     # ── ENCABEZADO ───────────────────────────────────────────
@@ -210,8 +209,16 @@ def generar_pdf(datos):
     monto_cuota = cuotas[0]['monto']
     plan_rows = []
     if pago_inicial_400:
-        # El pago inicial es el primer mes, las cuotas siguen desde el mes siguiente
-        mes_inicial = fmt_mes(cuotas[0]['fecha'])
+        # El mes del pago inicial viene del frontend
+        pago_ini_mes_str = datos.get('pago_ini_mes', None)
+        if pago_ini_mes_str:
+            pago_ini_date = date.fromisoformat(pago_ini_mes_str)
+            mes_inicial = f"{MESES[pago_ini_date.month].capitalize()} {pago_ini_date.year}"
+        else:
+            primera = cuotas[0]['fecha']
+            m_ini = primera.month - 1 if primera.month > 1 else 12
+            a_ini = primera.year if primera.month > 1 else primera.year - 1
+            mes_inicial = f"{MESES[m_ini].capitalize()} {a_ini}"
         rango_cuotas = fmt_mes(cuotas[0]['fecha']) if n_cuotas == 1 else f"{fmt_mes(cuotas[0]['fecha'])}  a  {fmt_mes(cuotas[-1]['fecha'])}"
         plan_rows.append([Paragraph(f"Pago inicial:  USD 400  —  {mes_inicial}", E['plan_s'])])
         plan_rows.append([Paragraph(" ", ParagraphStyle('sp', fontSize=4))])
