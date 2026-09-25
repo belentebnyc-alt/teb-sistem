@@ -624,10 +624,21 @@ function actualizar() {
     }
 
     // Calcular montos
+    var pagoIniMes = null;
+    var cuotasFechas = fechas;
+    if (p400 && fechas.length > 0) {
+      pagoIniMes   = fechas[0];       // primer mes = pago inicial
+      cuotasFechas = fechas.slice(1); // resto = cuotas iguales
+      nCuotas      = cuotasFechas.length;
+    }
+    if (nCuotas === 0 || cuotasFechas.length === 0) {
+      prev.innerHTML='<div class="empty">Completá todos los campos obligatorios para ver la cotización.</div>';
+      prevEd.textContent=''; return;
+    }
     var resto  = p400 ? total-400 : total;
     var base   = Math.round(resto/nCuotas);
     var ult    = resto - base*(nCuotas-1);
-    var cuotasArr = fechas.map(function(f,i){ return {n:i+1, fecha:f, monto:(i===nCuotas-1?ult:base), ultima:i===nCuotas-1}; });
+    var cuotasArr = cuotasFechas.map(function(f,i){ return {n:i+1, fecha:f, monto:(i===nCuotas-1?ult:base), ultima:i===nCuotas-1}; });
 
     var metodoExtra = el('metodo-extra').value.trim();
     var metodos = getMetodos();
@@ -639,7 +650,8 @@ function actualizar() {
       upgrade:upgradeV, reprogramacion:reprogV, cuotas:nCuotas,
       quien:quien, notas:notasV, total:total, metodosPago:metodos,
       p400:p400, limite:limiteDate,
-      fechasCuotas: modo==='manual' ? fechas.map(function(f){ return f.toISOString().split('T')[0]; }) : null,
+      pagoIniMes: pagoIniMes ? pagoIniMes.toISOString().split('T')[0] : null,
+      fechasCuotas: modo==='manual' ? cuotasFechas.map(function(f){ return f.toISOString().split('T')[0]; }) : null,
     };
 
     prevEd.textContent = EDICIONES[edKey] ? EDICIONES[edKey].label : '';
@@ -685,7 +697,7 @@ function actualizar() {
     h += '<div class="p-sec"><div class="p-sec-t">Plan de pagos</div>';
     h += '<div style="background:#111;color:white;border-radius:10px;padding:16px 18px;margin-bottom:10px">';
     if (p400) {
-      h += '<div style="font-size:12px;opacity:.7;margin-bottom:8px;padding-bottom:8px;border-bottom:0.5px solid rgba(255,255,255,.2)">Pago inicial: <b>USD 400</b> — '+fmtM(cuotasArr[0].fecha)+'</div>';
+      h += '<div style="font-size:12px;opacity:.7;margin-bottom:8px;padding-bottom:8px;border-bottom:0.5px solid rgba(255,255,255,.2)">Pago inicial: <b>USD 400</b> — '+fmtM(pagoIniMes)+'</div>';
     }
     h += '<div style="font-size:22px;font-weight:700;letter-spacing:-.5px">'+nCuotas+(nCuotas===1?' cuota':' cuotas')+'</div>';
     h += '<div style="font-size:13px;opacity:.8;margin-top:4px">'+usd2(cuotasArr[0].monto)+' por cuota</div>';
@@ -729,7 +741,7 @@ async function descargarPDF() {
         descuento5:d.descuento5, upgrade:d.upgrade, reprogramacion:d.reprogramacion,
         cuotas:d.cuotas, quien_recibe:d.quien, notas:d.notas,
         metodos_pago:d.metodosPago, cuotas_fechas:d.fechasCuotas||null,
-        pago_inicial_400:d.p400||false,
+        pago_inicial_400:d.p400||false, pago_ini_mes:d.pagoIniMes||null,
       })
     });
     if (resp.ok) {
