@@ -27,7 +27,10 @@ EDICIONES = {
     'Julio 2026': {'inicio': date(2026,7,10), 'checkin':'10 de julio de 2026 a las 4:00 PM',  'checkout':'31 de julio de 2026 a las 12:00 PM',  'label':'TEB NYC — Julio 2026',  'duracion':'21 dias'},
     'Enero 2027': {'inicio': date(2027,1,27), 'checkin':'27 de enero de 2027 a las 4:00 PM',  'checkout':'10 de febrero de 2027 a las 12:00 PM','label':'TEB NYC — Enero 2027',  'duracion':'14 dias'},
     'Julio 2027': {'inicio': date(2027,7,16), 'checkin':'16 de julio de 2027 a las 4:00 PM',  'checkout':'30 de julio de 2027 a las 12:00 PM', 'label':'TEB NYC — Julio 2027',  'duracion':'14 dias'},
-    'Enero 2028': {'inicio': date(2028,1,15), 'checkin':'A confirmar',                         'checkout':'A confirmar',                         'label':'TEB NYC — Enero 2028',  'duracion':'A confirmar'},
+    'Enero 2028': {'inicio': date(2028,1,15), 'checkin':'A confirmar', 'checkout':'A confirmar', 'label':'TEB NYC — Enero 2028', 'duracion':'A confirmar'},
+    'Julio 2028': {'inicio': date(2028,7,15), 'checkin':'A confirmar', 'checkout':'A confirmar', 'label':'TEB NYC — Julio 2028', 'duracion':'A confirmar'},
+    'Enero 2029': {'inicio': date(2029,1,15), 'checkin':'A confirmar', 'checkout':'A confirmar', 'label':'TEB NYC — Enero 2029', 'duracion':'A confirmar'},
+    'Julio 2029': {'inicio': date(2029,7,15), 'checkin':'A confirmar', 'checkout':'A confirmar', 'label':'TEB NYC — Julio 2029', 'duracion':'A confirmar'},
 }
 
 PLAN_DESC = {
@@ -107,17 +110,20 @@ def generar_pdf(datos):
     ed = EDICIONES.get(ed_key, {})
     fv = ed.get('inicio', date.today() + timedelta(days=180))
 
+    pago_inicial_400 = datos.get('pago_inicial_400', False)
+    total_cuotas = total - 400 if pago_inicial_400 else total
+
     # Si vienen fechas manuales, usarlas directamente (sin regla 45 días)
     cuotas_fechas_str = datos.get('cuotas_fechas', None)
     if cuotas_fechas_str:
         fechas_manual = [date.fromisoformat(s) for s in cuotas_fechas_str]
         n_cuotas  = len(fechas_manual)
-        base      = round(total / n_cuotas, 0)
-        ult       = round(total - base * (n_cuotas - 1), 0)
+        base      = round(total_cuotas / n_cuotas, 0)
+        ult       = round(total_cuotas - base * (n_cuotas - 1), 0)
         cuotas    = [{'n':i+1,'fecha':f,'monto':(ult if i==n_cuotas-1 else base),'ultima':i==n_cuotas-1} for i,f in enumerate(fechas_manual)]
         fecha_lim = fechas_manual[-1]
     else:
-        cuotas, fecha_lim = calcular_cuotas(fv, total, n_cuotas)
+        cuotas, fecha_lim = calcular_cuotas(fv, total_cuotas, n_cuotas)
 
     # ── ENCABEZADO ───────────────────────────────────────────
     h_rows = [[Paragraph('TEB NYC', E['tit'])]]
@@ -202,12 +208,16 @@ def generar_pdf(datos):
     ultimo_mes  = fmt_mes(cuotas[-1]['fecha'])
     rango       = primer_mes if n_cuotas==1 else f"{primer_mes}  a  {ultimo_mes}"
     monto_cuota = cuotas[0]['monto']
-    plan_data = [
-        [Paragraph(f"{n_cuotas} {'pago unico' if n_cuotas==1 else 'cuotas'}", E['plan_n'])],
+    plan_rows = []
+    if pago_inicial_400:
+        plan_rows.append([Paragraph("Pago inicial: USD 400", E['plan_d'])])
+    plan_rows += [
+        [Paragraph(f"{n_cuotas} {'cuota' if n_cuotas==1 else 'cuotas'}", E['plan_n'])],
         [Paragraph(f"USD {monto_cuota:,.0f} por cuota  —  {rango}", E['plan_s'])],
         [Paragraph(f"Del 1 al 15 de cada mes", E['plan_d'])],
         [Paragraph(f"Ultimo pago: antes del {fmt(fecha_lim)}", E['plan_d'])],
     ]
+    plan_data = plan_rows
     plan_t = Table(plan_data, colWidths=[W])
     plan_t.setStyle(TableStyle([
         ('BACKGROUND',    (0,0),(-1,-1), NEGRO),
